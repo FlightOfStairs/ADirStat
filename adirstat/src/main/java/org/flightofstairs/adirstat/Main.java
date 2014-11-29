@@ -8,8 +8,6 @@ import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import roboguice.activity.RoboActivity;
 
-import java.io.File;
-
 public class Main extends RoboActivity {
     @Inject Bus bus;
 
@@ -19,7 +17,7 @@ public class Main extends RoboActivity {
         setContentView(R.layout.activity);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new TreeView())
+                    .add(R.id.container, new TreeFragment())
                     .commit();
         }
     }
@@ -47,7 +45,6 @@ public class Main extends RoboActivity {
     public void onStart() {
         super.onStart();
 
-        new Scanner(bus).execute(new File(Environment.getExternalStorageDirectory(), "PongPagingApp"));
         new Scanner(bus).execute(Environment.getExternalStorageDirectory());
     }
 }
