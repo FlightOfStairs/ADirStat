@@ -2,6 +2,7 @@ package org.flightofstairs.adirstat;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSortedSet;
@@ -34,7 +35,8 @@ public class Scanner extends AsyncTask<File, Void, Optional<FsNode>> {
         return node;
     }
 
-    private static Optional<FsNode> recursiveList(File root) {
+    @VisibleForTesting
+    static Optional<FsNode> recursiveList(File root) {
         if (root.isDirectory()) {
             long subTreeBytes = 0;
             long subTreeCount = 0;

@@ -5,10 +5,12 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:0.14.4'
         classpath 'me.tatarka:gradle-retrolambda:2.4.1'
+        classpath 'org.robolectric:robolectric-gradle-plugin:0.14.0'
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'robolectric'
 apply plugin: 'retrolambda'
 
 repositories {
@@ -42,11 +44,31 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.code.findbugs:jsr305:2.0.2' // ProGuard would otherwise warn about missing guava deps.
     provided 'org.projectlombok:lombok:1.14.8'
+
+    androidTestCompile 'org.robolectric:robolectric:2.4'
+    androidTestCompile 'junit:junit:4.11'
+}
+
+robolectric {
+    include '**/*Test.class'
+    exclude '**/espresso/**/*.class'
+
+    ignoreFailures false
+
+    afterTest { descriptor, result ->
+        println "Executing test for ${descriptor.name} with result: ${result.resultType}"
+    }
 }
