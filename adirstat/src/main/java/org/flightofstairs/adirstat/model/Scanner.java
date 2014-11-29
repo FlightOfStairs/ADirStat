@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import lombok.SneakyThrows;
+import org.flightofstairs.adirstat.Tree;
 
 import java.io.File;
 import java.util.SortedSet;
@@ -19,7 +20,7 @@ import static com.google.common.collect.Iterables.transform;
 import static java.util.Locale.UK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class Scanner extends AsyncTask<File, Void, Optional<FsNode>> {
+public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSummary>>> {
     private final Bus bus;
 
     @Inject
@@ -29,14 +30,14 @@ public class Scanner extends AsyncTask<File, Void, Optional<FsNode>> {
 
     @Override
     @SneakyThrows
-    protected Optional<FsNode> doInBackground(File... params) {
+    protected Optional<Tree<FilesystemSummary>> doInBackground(File... params) {
         File root = verifyNotNull(params[0]);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<FsNode> node = recursiveList(root.getCanonicalFile());
+        Optional<Tree<FilesystemSummary>> node = recursiveList(root.getCanonicalFile());
 
         String logMessage = node.isPresent()
-                ? String.format(UK, "Found %d files (%dmb) in %ds.", node.get().getSubTreeCount(), node.get().getSubTreeBytes() / (int) Math.pow(1024, 2), stopwatch.elapsed(SECONDS))
+                ? String.format(UK, "Found %d files (%dmb) in %ds.", node.get().getValue().getSubTreeCount(), node.get().getValue().getSubTreeBytes() / (int) Math.pow(1024, 2), stopwatch.elapsed(SECONDS))
                 : "Failed to list files.";
         Log.d(getClass().getSimpleName(), logMessage);
 
@@ -44,29 +45,29 @@ public class Scanner extends AsyncTask<File, Void, Optional<FsNode>> {
     }
 
     @Override
-    public void onPostExecute(Optional<FsNode> result) { bus.post(result); }
+    public void onPostExecute(Optional<Tree<FilesystemSummary>> result) { bus.post(result); }
 
     @Override
-    public void onCancelled() { bus.post(Optional.<FsNode>absent()); }
+    public void onCancelled() { bus.post(Optional.<Tree<FilesystemSummary>>absent()); }
 
     @VisibleForTesting
-    static Optional<FsNode> recursiveList(File root) {
+    static Optional<Tree<FilesystemSummary>> recursiveList(File root) {
         if (root.isDirectory()) {
             long subTreeBytes = 0;
             long subTreeCount = 0;
 
-            Iterable<Optional<FsNode>> possibleChildren = transform(copyOf(root.listFiles()), Scanner::recursiveList);
+            Iterable<Optional<Tree<FilesystemSummary>>> possibleChildren = transform(copyOf(root.listFiles()), Scanner::recursiveList);
 
-            SortedSet<FsNode> children = ImmutableSortedSet.copyOf(Optional.presentInstances(possibleChildren));
-            for (FsNode child : children) {
-                subTreeBytes += child.getSubTreeBytes();
-                subTreeCount += child.getSubTreeCount();
+            SortedSet<Tree<FilesystemSummary>> children = ImmutableSortedSet.copyOf(Optional.presentInstances(possibleChildren));
+            for (Tree<FilesystemSummary> child : children) {
+                subTreeBytes += child.getValue().getSubTreeBytes();
+                subTreeCount += child.getValue().getSubTreeCount();
             }
 
-            return Optional.of(new FsNode(root.getName(), children, subTreeBytes, subTreeCount));
+            return Optional.of(new Tree<>(new FilesystemSummary(root.getName(), subTreeBytes, subTreeCount), children));
         } else if (root.isFile()) {
             Log.v("Scanner", "Found " + root);
-            return Optional.of(new FsNode(root.getName(), ImmutableSortedSet.<FsNode>of(), root.length(), 1));
+            return Optional.of(new Tree<>(new FilesystemSummary(root.getName(), root.length(), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
         }
         return Optional.absent();
     }

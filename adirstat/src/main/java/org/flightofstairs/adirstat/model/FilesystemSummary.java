@@ -1,21 +1,19 @@
 package org.flightofstairs.adirstat.model;
 
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import lombok.Value;
 
-import java.util.SortedSet;
+import javax.annotation.Nonnull;
 
 @Value
 @AllArgsConstructor(suppressConstructorProperties = true) // needed because android :(
-public class FsNode implements Comparable<FsNode> {
-    @NonNull String name;
-    @NonNull SortedSet<FsNode> children;
-    long subTreeBytes;
-    long subTreeCount;
+public class FilesystemSummary implements Comparable<FilesystemSummary> {
+    private @Nonnull String name;
+    private long subTreeBytes;
+    private long subTreeCount;
 
     @Override
-    public int compareTo(FsNode other) {
+    public int compareTo(FilesystemSummary other) {
         return this.name.compareTo(other.name);
     }
 }

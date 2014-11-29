@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Files;
 import lombok.SneakyThrows;
+import org.flightofstairs.adirstat.Tree;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -20,20 +21,17 @@ import static org.junit.Assert.assertTrue;
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class ScannerTest {
-    public static final ImmutableSortedSet<FsNode> EMPTY = ImmutableSortedSet.of();
+    public static final ImmutableSortedSet<Tree<FilesystemSummary>> EMPTY = ImmutableSortedSet.of();
 
     @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
     public void testEmpty() {
-        Optional<FsNode> possibleNode = Scanner.recursiveList(testFolder.getRoot());
+        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(testFolder.getRoot());
         assertTrue(possibleNode.isPresent());
-        FsNode node = possibleNode.get();
+        Tree<FilesystemSummary> node = possibleNode.get();
 
-        assertEquals(testFolder.getRoot().getName(), node.getName());
-        assertEquals(0, node.getSubTreeBytes());
-        assertEquals(0, node.getSubTreeCount());
-        assertEquals(0, node.getChildren().size());
+        assertEquals(new Tree<>(new FilesystemSummary(testFolder.getRoot().getName(), 0, 0), EMPTY), node);
     }
 
     @SneakyThrows
@@ -42,11 +40,11 @@ public class ScannerTest {
         File root = testFolder.getRoot();
         Files.write("hello", new File(root, "hello.txt"), UTF_8);
 
-        Optional<FsNode> possibleNode = Scanner.recursiveList(root);
+        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root);
         assertTrue(possibleNode.isPresent());
 
-        FsNode file = new FsNode("hello.txt", EMPTY, 5, 0);
-        FsNode dir = new FsNode(root.getName(), ImmutableSortedSet.of(file), 5, 1);
+        Tree<FilesystemSummary> file = new Tree<>(new FilesystemSummary("hello.txt", 5, 0), EMPTY);
+        Tree<FilesystemSummary> dir = new Tree<>(new FilesystemSummary(root.getName(), 5, 1), ImmutableSortedSet.of(file));
 
         assertEquals(dir, possibleNode.get());
     }
@@ -76,23 +74,19 @@ public class ScannerTest {
 
         Files.write("4444", new File(fourth, "4.txt"), UTF_8);
 
-        Optional<FsNode> possibleNode = Scanner.recursiveList(root);
+        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root);
         assertTrue(possibleNode.isPresent());
 
-        FsNode dir = new FsNode(root.getName(), ImmutableSortedSet.of(
-                new FsNode("hello.txt", EMPTY, 5, 1),
-                new FsNode("world.txt", EMPTY, 5, 1),
-                new FsNode("second", ImmutableSortedSet.of(
-                        new FsNode("1.txt", EMPTY, 1, 1),
-                        new FsNode("third", ImmutableSortedSet.of(
-                                new FsNode("2.txt", EMPTY, 2, 1),
-                                new FsNode("3.txt", EMPTY, 3, 1)
-                        ), 5, 2)
-                ), 6, 3),
-                new FsNode("fourth", ImmutableSortedSet.of(
-                        new FsNode("4.txt", ImmutableSortedSet.of(), 4, 1)
-                ), 4, 1)
-        ), 20, 6);
+        Tree<FilesystemSummary> dir = new Tree<>(new FilesystemSummary(root.getName(), 20, 6), ImmutableSortedSet.of(
+                new Tree<>(new FilesystemSummary("hello.txt", 5, 1), EMPTY),
+                new Tree<>(new FilesystemSummary("world.txt", 5, 1), EMPTY),
+                new Tree<>(new FilesystemSummary("second", 4, 1), ImmutableSortedSet.of(
+                        new Tree<>(new FilesystemSummary("1.txt", 1, 1), EMPTY),
+                        new Tree<>(new FilesystemSummary("third", 5, 2), ImmutableSortedSet.of(
+                                new Tree<>(new FilesystemSummary("2.txt", 2, 1), EMPTY),
+                                new Tree<>(new FilesystemSummary("3.txt", 3, 1), EMPTY))))),
+                new Tree<>(new FilesystemSummary("fourth", 4, 1), ImmutableSortedSet.of(
+                        new Tree<>(new FilesystemSummary("4.txt", 4, 1), EMPTY)))));
 
         assertEquals(dir, possibleNode.get());
     }

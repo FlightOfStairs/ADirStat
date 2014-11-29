@@ -11,8 +11,9 @@ import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import lombok.SneakyThrows;
-import org.flightofstairs.adirstat.model.FsNode;
 import org.flightofstairs.adirstat.R;
+import org.flightofstairs.adirstat.Tree;
+import org.flightofstairs.adirstat.model.FilesystemSummary;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -41,9 +42,9 @@ public class TreeFragment extends RoboFragment {
     }
 
     @Subscribe
-    public void onFsScanComplete(@Nonnull Optional<FsNode> node) {
+    public void onFsScanComplete(@Nonnull Optional<Tree<FilesystemSummary>> node) {
         String logMessage = node.isPresent()
-                ? String.format(UK, "Found %d files (%dmb).", node.get().getSubTreeCount(), node.get().getSubTreeBytes() / (int) Math.pow(1024, 2))
+                ? String.format(UK, "Found %d files (%dmb).", node.get().getValue().getSubTreeCount(), node.get().getValue().getSubTreeBytes() / (int) Math.pow(1024, 2))
                 : "Failed to list files.";
 
         Toast.makeText(getActivity().getApplicationContext(), logMessage, LENGTH_LONG).show();

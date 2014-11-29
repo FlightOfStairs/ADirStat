@@ -7,7 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import org.flightofstairs.adirstat.model.FsNode;
+import org.flightofstairs.adirstat.Tree;
+import org.flightofstairs.adirstat.model.FilesystemSummary;
 
 import static java.lang.Math.min;
 import static java.lang.Math.round;
@@ -15,9 +16,9 @@ import static java.lang.Math.round;
 public class TreeMap extends Drawable {
     private enum Split { VERTICAL, HORIZONTAL }
 
-    private final FsNode root;
+    private final Tree<FilesystemSummary> root;
 
-    public TreeMap(FsNode root) {
+    public TreeMap(Tree<FilesystemSummary> root) {
         this.root = root;
     }
 
@@ -26,7 +27,7 @@ public class TreeMap extends Drawable {
         draw(root, canvas.getClipBounds(), canvas, canvas.getHeight() > canvas.getWidth() ? Split.VERTICAL : Split.HORIZONTAL);
     }
 
-    private static void draw(FsNode node, Rect bounds, Canvas canvas, Split split) {
+    private static void draw(Tree<FilesystemSummary> node, Rect bounds, Canvas canvas, Split split) {
         if (min(bounds.width(), bounds.height()) < 3 || bounds.width() * bounds.height() < 20) {
             Log.d(TreeMap.class.getSimpleName(), "Node too small to care about: " + node);
             return;
@@ -39,8 +40,8 @@ public class TreeMap extends Drawable {
 
         double priorFraction = 0;
 
-        for (FsNode child : node.getChildren()) {
-            double fraction = child.getSubTreeBytes() / (double) node.getSubTreeBytes();
+        for (Tree<FilesystemSummary> child : node.getChildren()) {
+            double fraction = child.getValue().getSubTreeBytes() / (double) node.getValue().getSubTreeBytes();
 
             draw(child, newBounds(bounds, split, fraction, priorFraction), canvas, split == Split.VERTICAL ? Split.HORIZONTAL : Split.VERTICAL);
 
