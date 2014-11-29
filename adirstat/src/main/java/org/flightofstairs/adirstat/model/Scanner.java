@@ -1,4 +1,4 @@
-package org.flightofstairs.adirstat;
+package org.flightofstairs.adirstat.model;
 
 import android.os.AsyncTask;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package org.flightofstairs.adirstat;
+package org.flightofstairs.adirstat.view;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import lombok.SneakyThrows;
+import org.flightofstairs.adirstat.model.FsNode;
+import org.flightofstairs.adirstat.R;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 

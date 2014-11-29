@@ -1,4 +1,4 @@
-package org.flightofstairs.adirstat;
+package org.flightofstairs.adirstat.model;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;

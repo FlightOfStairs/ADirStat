@@ -1,4 +1,4 @@
-package org.flightofstairs.adirstat;
+package org.flightofstairs.adirstat.view;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import org.flightofstairs.adirstat.model.FsNode;
 
 import static java.lang.Math.min;
 import static java.lang.Math.round;
