@@ -6,6 +6,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.inject.Inject;
+import com.squareup.otto.Bus;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -18,6 +20,12 @@ import static java.util.Locale.UK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Scanner extends AsyncTask<File, Void, Optional<FsNode>> {
+    private final Bus bus;
+
+    @Inject
+    public Scanner(Bus bus) {
+        this.bus = bus;
+    }
 
     @Override
     @SneakyThrows
@@ -34,6 +42,12 @@ public class Scanner extends AsyncTask<File, Void, Optional<FsNode>> {
 
         return node;
     }
+
+    @Override
+    public void onPostExecute(Optional<FsNode> result) { bus.post(result); }
+
+    @Override
+    public void onCancelled() { bus.post(Optional.<FsNode>absent()); }
 
     @VisibleForTesting
     static Optional<FsNode> recursiveList(File root) {
