@@ -24,10 +24,10 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
 
     @Override
     public Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
-        return transformTree(summaryTree, bounds, bounds.width() < bounds.height() ? Split.VERTICAL : Split.HORIZONTAL);
+        return pack(summaryTree, bounds, bounds.width() < bounds.height() ? Split.VERTICAL : Split.HORIZONTAL);
     }
 
-    private Tree<DisplayNode> transformTree(Tree<FilesystemSummary> summaryTree, Rect bounds, Split split) {
+    private Tree<DisplayNode> pack(Tree<FilesystemSummary> summaryTree, Rect bounds, Split split) {
         ImmutableSortedSet.Builder<Tree<DisplayNode>> children = ImmutableSortedSet.naturalOrder();
 
         double priorFraction = 0;
@@ -38,7 +38,7 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
 
             Log.v(getClass().getSimpleName(), fraction + "");
 
-            children.add(transformTree(child, newBounds(bounds, split, fraction, priorFraction), split.invert()));
+            children.add(pack(child, newBounds(bounds, split, fraction, priorFraction), split.invert()));
 
             priorFraction += fraction;
         }
