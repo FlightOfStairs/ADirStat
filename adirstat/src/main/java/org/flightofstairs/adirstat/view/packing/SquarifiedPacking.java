@@ -16,7 +16,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import static com.google.common.base.Verify.verify;
-import static org.flightofstairs.adirstat.view.packing.PackingUtils.Split;
 import static org.flightofstairs.adirstat.view.packing.PackingUtils.newBounds;
 
 /**
@@ -56,12 +55,10 @@ public class SquarifiedPacking implements Packing {
             NavigableSet<Tree<FilesystemSummary>> remaining = descendingSize.tailSet(row.last(), false);
             verify(remaining.size() + row.size() == summaryTrees.size());
 
-            Split split = Split.forBounds(bounds);
-
-            displayTrees.addAll(placeRow(row, newBounds(bounds, split, rowFraction, 0), rowTotalBytes));
+            displayTrees.addAll(placeRow(row, newBounds(bounds, rowFraction, 0), rowTotalBytes));
 
             summaryTrees = remaining;
-            bounds = newBounds(bounds, split, 1 - rowFraction, rowFraction);
+            bounds = newBounds(bounds, 1 - rowFraction, rowFraction);
             totalBytes -= rowTotalBytes;
         }
 
@@ -70,15 +67,13 @@ public class SquarifiedPacking implements Packing {
 
     @Nonnull
     private Set<Tree<DisplayNode>> placeRow(@Nonnull Iterable<Tree<FilesystemSummary>> row, @Nonnull Rect rowBounds, long rowTotalBytes) {
-        Split split = Split.forBounds(rowBounds);
-
         ImmutableSortedSet.Builder<Tree<DisplayNode>> rowChildren = ImmutableSortedSet.naturalOrder();
 
         double priorFraction = 0;
         for (Tree<FilesystemSummary> summaryTree : row) {
             double fraction = rowTotalBytes == 0 ? 0 : summaryTree.getValue().getSubTreeBytes() / (double) rowTotalBytes;
 
-            rowChildren.add(pack(summaryTree, newBounds(rowBounds, split, fraction, priorFraction)));
+            rowChildren.add(pack(summaryTree, newBounds(rowBounds, fraction, priorFraction)));
             priorFraction += fraction;
         }
 

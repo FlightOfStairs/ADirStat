@@ -19,7 +19,12 @@ public class PackingUtils {
         }
     }
 
-    public static Rect newBounds(@Nonnull Rect bounds, Split split, double fraction, double priorFraction) {
+    public static Rect newBounds(@Nonnull Rect bounds, double rowFraction, double priorFraction) {
+        return newBounds(bounds, rowFraction, priorFraction, PackingUtils.Split.forBounds(bounds));
+    }
+
+    @Nonnull
+    public static Rect newBounds(@Nonnull Rect bounds, double fraction, double priorFraction, Split split) {
         verify(fraction + priorFraction <= 1 + EPSILON, "fraction (%d) & prior fraction (%d) more than 1 + EPSILON ", fraction, priorFraction);
 
         Rect newBounds;

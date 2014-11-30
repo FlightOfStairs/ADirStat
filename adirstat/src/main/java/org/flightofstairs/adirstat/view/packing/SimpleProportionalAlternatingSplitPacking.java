@@ -40,7 +40,7 @@ public class SimpleProportionalAlternatingSplitPacking implements Packing {
 
             Log.v(getClass().getSimpleName(), fraction + "");
 
-            children.add(pack(child, newBounds(bounds, split, fraction, priorFraction), split.invert()));
+            children.add(pack(child, newBounds(bounds, fraction, priorFraction, split), split.invert()));
 
             priorFraction += fraction;
         }
