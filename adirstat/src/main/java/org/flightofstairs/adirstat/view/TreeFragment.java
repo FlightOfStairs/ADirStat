@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.lang.Math.min;
 import static java.util.Locale.UK;
 
 public class TreeFragment extends RoboFragment {
@@ -62,15 +63,15 @@ public class TreeFragment extends RoboFragment {
     @Subscribe
     public void onPackedDisplayNodes(@Nonnull Tree<DisplayNode> displayNodes) {
         imageView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Predicate<DisplayNode> searchPredicate = (node) -> node.getBounds().contains((int) event.getX(), (int) event.getY())
-                                                                    && Math.min(node.getBounds().width(), node.getBounds().height()) >= event.getToolMajor() / 2;
-
-                Optional<Tree<DisplayNode>> possibleTree = displayNodes.descendWhile(searchPredicate);
-
-                Toast.makeText(getActivity().getApplicationContext(), possibleTree.transform((node) -> node.getValue().getFile().toString()).or("Missing file? Weird."), LENGTH_SHORT).show();
-            }
+            if (event.getAction() == MotionEvent.ACTION_DOWN) handleClick(displayNodes, event);
             return true;
         });
+    }
+
+    private void handleClick(Tree<DisplayNode> displayNodes, MotionEvent event) {
+        Predicate<DisplayNode> searchPredicate = (node) -> node.getBounds().contains((int) event.getX(), (int) event.getY()) && min(node.getBounds().width(), node.getBounds().height()) >= event.getToolMajor() / 2;
+        Optional<Tree<DisplayNode>> possibleTree = displayNodes.descendWhile(searchPredicate);
+
+        Toast.makeText(getActivity().getApplicationContext(), possibleTree.transform((node) -> node.getValue().getFile().toString()).or("Missing file? Weird."), LENGTH_SHORT).show();
     }
 }
