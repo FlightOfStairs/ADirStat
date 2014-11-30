@@ -9,11 +9,13 @@ import lombok.experimental.Delegate;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.model.FilesystemSummary;
 import org.flightofstairs.adirstat.view.DisplayNode;
+import org.flightofstairs.adirstat.view.packing.PackingUtils.Split;
 
 import javax.annotation.Nonnull;
 
 import static java.lang.Math.max;
-import static java.lang.Math.round;
+import static org.flightofstairs.adirstat.view.packing.PackingUtils.*;
+import static org.flightofstairs.adirstat.view.packing.PackingUtils.Split.*;
 
 public class SimpleProportionalAlternatingSplitPacker implements Packer {
     public SimpleProportionalAlternatingSplitPacker(Scaling scaling) {
@@ -25,7 +27,7 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
     @Nonnull
     @Override
     public Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
-        return pack(summaryTree, bounds, bounds.width() < bounds.height() ? Split.VERTICAL : Split.HORIZONTAL);
+        return pack(summaryTree, bounds, bounds.width() < bounds.height() ? VERTICAL : HORIZONTAL);
     }
 
     private Tree<DisplayNode> pack(Tree<FilesystemSummary> summaryTree, Rect bounds, Split split) {
@@ -47,20 +49,6 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
         return new Tree<>(new DisplayNode(summaryTree.getValue().getPath(), bounds), children.build());
     }
 
-    private static Rect newBounds(Rect bounds, Split split, double fraction, double priorFraction) {
-        if (split == Split.HORIZONTAL) {
-            double left = bounds.left + bounds.width() * priorFraction;
-            double right =  left + round(bounds.width() * fraction);
-
-            return new Rect((int) round(left), bounds.top, (int) round(right), bounds.bottom);
-        } else {
-            double top = bounds.top + bounds.height() * priorFraction;
-            double bottom =  top + round(bounds.height() * fraction);
-
-            return new Rect(bounds.left, (int) round(top), bounds.right, (int) round(bottom));
-        }
-    }
-
     public enum Scaling implements Function<Double, Double> {
         LINEAR(Functions.<Double>identity()),
         LOG(Math::log);
@@ -71,11 +59,5 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
         Scaling(Function<Double, Double> delegate) {
             this.delegate = delegate;
         }
-    }
-
-    private enum Split {
-        VERTICAL, HORIZONTAL;
-
-        public Split invert() { return values()[(this.ordinal() + 1) % 2]; }
     }
 }
