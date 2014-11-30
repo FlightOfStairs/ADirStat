@@ -36,29 +36,34 @@ public class SquarifiedPacker implements Packer {
 
     @Nonnull
     public ImmutableSortedSet<Tree<DisplayNode>> packChildren(@Nonnull Collection<Tree<FilesystemSummary>> summaryTrees, @Nonnull Rect bounds, long totalBytes) {
-        if (summaryTrees.isEmpty()) return ImmutableSortedSet.of();
-
-        NavigableSet<Tree<FilesystemSummary>> descendingSize = ImmutableSortedSet.copyOf(DESCENDING_SUMMARY_TREES, summaryTrees);
-
-        NavigableSet<Tree<FilesystemSummary>> row = firstRow(bounds, totalBytes, descendingSize);
-
-        verify(!row.isEmpty());
-
-        long rowTotalBytes = 0;
-        for (Tree<FilesystemSummary> summaryTree : row) rowTotalBytes += summaryTree.getValue().getSubTreeBytes();
-
-        double rowFraction = totalBytes == 0 ? 0 : rowTotalBytes / (double) totalBytes;
-
         ImmutableSortedSet.Builder<Tree<DisplayNode>> displayTrees = ImmutableSortedSet.naturalOrder();
 
-        NavigableSet<Tree<FilesystemSummary>> remaining = descendingSize.tailSet(row.last(), false);
+        /*  I really don't like this pattern - it requires mutable parameters.
+            Android doesn't allow a big call stack, so I'm stuck with it unless
+            I pull out a parameter object. */
+        while (!summaryTrees.isEmpty()) {
+            NavigableSet<Tree<FilesystemSummary>> descendingSize = ImmutableSortedSet.copyOf(DESCENDING_SUMMARY_TREES, summaryTrees);
 
-        verify(remaining.size() + row.size() == summaryTrees.size());
+            NavigableSet<Tree<FilesystemSummary>> row = firstRow(bounds, totalBytes, descendingSize);
 
-        Split split = Split.forBounds(bounds);
+            verify(!row.isEmpty());
 
-        displayTrees.addAll(placeRow(row, newBounds(bounds, split, rowFraction, 0), rowTotalBytes));
-        displayTrees.addAll(packChildren(remaining, newBounds(bounds, split, 1 - rowFraction, rowFraction), totalBytes - rowTotalBytes));
+            long rowTotalBytes = 0;
+            for (Tree<FilesystemSummary> summaryTree : row) rowTotalBytes += summaryTree.getValue().getSubTreeBytes();
+
+            double rowFraction = totalBytes == 0 ? 0 : rowTotalBytes / (double) totalBytes;
+
+            NavigableSet<Tree<FilesystemSummary>> remaining = descendingSize.tailSet(row.last(), false);
+            verify(remaining.size() + row.size() == summaryTrees.size());
+
+            Split split = Split.forBounds(bounds);
+
+            displayTrees.addAll(placeRow(row, newBounds(bounds, split, rowFraction, 0), rowTotalBytes));
+
+            summaryTrees = remaining;
+            bounds = newBounds(bounds, split, 1 - rowFraction, rowFraction);
+            totalBytes -= rowTotalBytes;
+        }
 
         return displayTrees.build();
     }
