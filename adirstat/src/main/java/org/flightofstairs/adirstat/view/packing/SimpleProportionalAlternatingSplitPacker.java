@@ -22,6 +22,7 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
 
     private final Scaling scaling;
 
+    @Nonnull
     @Override
     public Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
         return pack(summaryTree, bounds, bounds.width() < bounds.height() ? Split.VERTICAL : Split.HORIZONTAL);
