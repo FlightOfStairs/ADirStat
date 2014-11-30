@@ -21,6 +21,9 @@ import static java.util.Locale.UK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSummary>>> {
+
+    private static final int MIN_FILE_BYTES = 1;
+
     private final Bus bus;
 
     @Inject
@@ -66,7 +69,7 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
 
             return Optional.of(new Tree<>(new FilesystemSummary(path, subTreeBytes, subTreeCount), children));
         } else if (path.isFile()) {
-            return Optional.of(new Tree<>(new FilesystemSummary(path, path.length(), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
+            return Optional.of(new Tree<>(new FilesystemSummary(path, Math.max(path.length(), MIN_FILE_BYTES), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
         }
         return Optional.absent();
     }
