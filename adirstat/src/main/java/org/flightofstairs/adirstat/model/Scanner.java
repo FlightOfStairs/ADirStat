@@ -66,7 +66,6 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
 
             return Optional.of(new Tree<>(new FilesystemSummary(path, subTreeBytes, subTreeCount), children));
         } else if (path.isFile()) {
-            Log.v("Scanner", "Found " + path);
             return Optional.of(new Tree<>(new FilesystemSummary(path, path.length(), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
         }
         return Optional.absent();
