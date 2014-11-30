@@ -7,6 +7,6 @@ import org.flightofstairs.adirstat.view.DisplayNode;
 
 import javax.annotation.Nonnull;
 
-public interface Packer {
+public interface Packing {
     @Nonnull Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds);
 }

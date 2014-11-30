@@ -4,7 +4,6 @@ import android.graphics.Rect;
 import com.google.common.collect.ImmutableSortedSet;
 import junit.framework.Assert;
 import org.flightofstairs.adirstat.Tree;
-import org.flightofstairs.adirstat.model.FilesystemSummary;
 import org.flightofstairs.adirstat.view.DisplayNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,11 +12,11 @@ import org.robolectric.annotation.Config;
 
 import java.io.File;
 
-import static org.flightofstairs.adirstat.view.packing.SimpleProportionalAlternatingSplitPacker.*;
+import static org.flightofstairs.adirstat.view.packing.SimpleProportionalAlternatingSplitPacking.*;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
-public class SimpleProportionalAlternatingSplitPackerTest {
+public class SimpleProportionalAlternatingSplitPackingTest {
     private static final ImmutableSortedSet<Tree<DisplayNode>> EMPTY_DISPLAY = ImmutableSortedSet.of();
 
     @Test
@@ -31,7 +30,7 @@ public class SimpleProportionalAlternatingSplitPackerTest {
                                     new Tree<>(new DisplayNode(new File("root/dir1/dir2/3byteFile.txt"), new Rect(400, 150, 600, 300)), EMPTY_DISPLAY),
                                     new Tree<>(new DisplayNode(new File("root/dir1/dir2/3byteFile2.txt"), new Rect(600, 150, 800, 300)), EMPTY_DISPLAY)))))));
 
-        Tree<DisplayNode> actual = new SimpleProportionalAlternatingSplitPacker(Scaling.LINEAR).pack(SimpleSummaryTree.TREE, new Rect(0, 0, 800, 300));
+        Tree<DisplayNode> actual = new SimpleProportionalAlternatingSplitPacking(Scaling.LINEAR).pack(SimpleSummaryTree.TREE, new Rect(0, 0, 800, 300));
 
         Assert.assertEquals(expected, actual);
     }

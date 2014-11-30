@@ -22,7 +22,7 @@ import static org.flightofstairs.adirstat.view.packing.PackingUtils.newBounds;
 /**
  * An implementation of the "Squarified Treemaps": http://www.win.tue.nl/~vanwijk/stm.pdf
  */
-public class SquarifiedPacker implements Packer {
+public class SquarifiedPacking implements Packing {
     private static final Comparator<Tree<FilesystemSummary>> DESCENDING_SUMMARY_TREES = (a, b) ->
             ComparisonChain.start()
                 .compare(b.getValue().getSubTreeBytes(), a.getValue().getSubTreeBytes())

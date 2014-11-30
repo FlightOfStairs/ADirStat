@@ -14,7 +14,7 @@ import java.io.File;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
-public class SquarifiedPackerTest {
+public class SquarifiedPackingTest {
 
     private static final ImmutableSortedSet<Tree<DisplayNode>> EMPTY_DISPLAY = ImmutableSortedSet.of();
 
@@ -29,7 +29,7 @@ public class SquarifiedPackerTest {
                                         new Tree<>(new DisplayNode(new File("root/dir1/dir2/3byteFile.txt"), new Rect(400, 150, 600, 300)), EMPTY_DISPLAY),
                                         new Tree<>(new DisplayNode(new File("root/dir1/dir2/3byteFile2.txt"), new Rect(600, 150, 800, 300)), EMPTY_DISPLAY)))))));
 
-        Tree<DisplayNode> actual = new SquarifiedPacker().pack(SimpleSummaryTree.TREE, new Rect(0, 0, 800, 300));
+        Tree<DisplayNode> actual = new SquarifiedPacking().pack(SimpleSummaryTree.TREE, new Rect(0, 0, 800, 300));
 
         Assert.assertEquals(expected, actual);
     }

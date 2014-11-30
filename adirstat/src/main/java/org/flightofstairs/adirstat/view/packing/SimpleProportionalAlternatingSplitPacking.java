@@ -16,8 +16,8 @@ import javax.annotation.Nonnull;
 import static java.lang.Math.max;
 import static org.flightofstairs.adirstat.view.packing.PackingUtils.newBounds;
 
-public class SimpleProportionalAlternatingSplitPacker implements Packer {
-    public SimpleProportionalAlternatingSplitPacker(Scaling scaling) {
+public class SimpleProportionalAlternatingSplitPacking implements Packing {
+    public SimpleProportionalAlternatingSplitPacking(Scaling scaling) {
         this.scaling = scaling;
     }
 
