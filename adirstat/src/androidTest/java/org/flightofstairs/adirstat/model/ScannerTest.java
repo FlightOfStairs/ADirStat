@@ -77,16 +77,16 @@ public class ScannerTest {
         Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root);
         assertTrue(possibleNode.isPresent());
 
+        // IDEA went a bit mental when this was inline.
+        Tree<FilesystemSummary> thirdTree = new Tree<>(new FilesystemSummary("third", 5, 2), ImmutableSortedSet.of(
+                new Tree<>(new FilesystemSummary("2.txt", 2, 1), EMPTY),
+                new Tree<>(new FilesystemSummary("3.txt", 3, 1), EMPTY)));
+
         Tree<FilesystemSummary> dir = new Tree<>(new FilesystemSummary(root.getName(), 20, 6), ImmutableSortedSet.of(
                 new Tree<>(new FilesystemSummary("hello.txt", 5, 1), EMPTY),
                 new Tree<>(new FilesystemSummary("world.txt", 5, 1), EMPTY),
-                new Tree<>(new FilesystemSummary("second", 4, 1), ImmutableSortedSet.of(
-                        new Tree<>(new FilesystemSummary("1.txt", 1, 1), EMPTY),
-                        new Tree<>(new FilesystemSummary("third", 5, 2), ImmutableSortedSet.of(
-                                new Tree<>(new FilesystemSummary("2.txt", 2, 1), EMPTY),
-                                new Tree<>(new FilesystemSummary("3.txt", 3, 1), EMPTY))))),
-                new Tree<>(new FilesystemSummary("fourth", 4, 1), ImmutableSortedSet.of(
-                        new Tree<>(new FilesystemSummary("4.txt", 4, 1), EMPTY)))));
+                new Tree<>(new FilesystemSummary("second", 4, 1), ImmutableSortedSet.of(new Tree<>(new FilesystemSummary("1.txt", 1, 1), EMPTY), thirdTree)),
+                new Tree<>(new FilesystemSummary("fourth", 4, 1), ImmutableSortedSet.of(new Tree<>(new FilesystemSummary("4.txt", 4, 1), EMPTY)))));
 
         assertEquals(dir, possibleNode.get());
     }
