@@ -2,11 +2,13 @@ package org.flightofstairs.adirstat.view;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -21,6 +23,7 @@ import roboguice.inject.InjectView;
 import javax.annotation.Nonnull;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Locale.UK;
 
 public class TreeFragment extends RoboFragment {
@@ -50,6 +53,24 @@ public class TreeFragment extends RoboFragment {
 
         Toast.makeText(getActivity().getApplicationContext(), message, LENGTH_LONG).show();
 
-        if (node.isPresent()) imageView.setImageDrawable(new TreeMap(node.get(), new SquarifiedPacking()));
+        if (node.isPresent()) {
+            TreeMap drawable = new TreeMap(bus, node.get(), new SquarifiedPacking());
+            imageView.setImageDrawable(drawable);
+        }
+    }
+
+    @Subscribe
+    public void onPackedDisplayNodes(@Nonnull Tree<DisplayNode> displayNodes) {
+        imageView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Predicate<DisplayNode> searchPredicate = (node) -> node.getBounds().contains((int) event.getX(), (int) event.getY())
+                                                                    && Math.min(node.getBounds().width(), node.getBounds().height()) >= event.getToolMajor() / 2;
+
+                Optional<Tree<DisplayNode>> possibleTree = displayNodes.descendWhile(searchPredicate);
+
+                Toast.makeText(getActivity().getApplicationContext(), possibleTree.transform((node) -> node.getValue().getFile().toString()).or("Missing file? Weird."), LENGTH_SHORT).show();
+            }
+            return true;
+        });
     }
 }
