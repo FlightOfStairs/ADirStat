@@ -14,6 +14,8 @@ import lombok.SneakyThrows;
 import org.flightofstairs.adirstat.R;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.model.FilesystemSummary;
+import org.flightofstairs.adirstat.view.packing.SimpleProportionalAlternatingSplitPacker;
+import org.flightofstairs.adirstat.view.packing.SimpleProportionalAlternatingSplitPacker.Scaling;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -49,6 +51,6 @@ public class TreeFragment extends RoboFragment {
 
         Toast.makeText(getActivity().getApplicationContext(), logMessage, LENGTH_LONG).show();
 
-        if (node.isPresent()) imageView.setImageDrawable(new TreeMap(node.get()));
+        if (node.isPresent()) imageView.setImageDrawable(new TreeMap(node.get(), new SimpleProportionalAlternatingSplitPacker(Scaling.LINEAR)));
     }
 }

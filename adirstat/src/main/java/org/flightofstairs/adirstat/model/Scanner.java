@@ -51,12 +51,12 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
     public void onCancelled() { bus.post(Optional.<Tree<FilesystemSummary>>absent()); }
 
     @VisibleForTesting
-    static Optional<Tree<FilesystemSummary>> recursiveList(File root) {
-        if (root.isDirectory()) {
+    static Optional<Tree<FilesystemSummary>> recursiveList(File path) {
+        if (path.isDirectory()) {
             long subTreeBytes = 0;
             long subTreeCount = 0;
 
-            Iterable<Optional<Tree<FilesystemSummary>>> possibleChildren = transform(copyOf(root.listFiles()), Scanner::recursiveList);
+            Iterable<Optional<Tree<FilesystemSummary>>> possibleChildren = transform(copyOf(path.listFiles()), Scanner::recursiveList);
 
             SortedSet<Tree<FilesystemSummary>> children = ImmutableSortedSet.copyOf(Optional.presentInstances(possibleChildren));
             for (Tree<FilesystemSummary> child : children) {
@@ -64,10 +64,10 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
                 subTreeCount += child.getValue().getSubTreeCount();
             }
 
-            return Optional.of(new Tree<>(new FilesystemSummary(root.getName(), subTreeBytes, subTreeCount), children));
-        } else if (root.isFile()) {
-            Log.v("Scanner", "Found " + root);
-            return Optional.of(new Tree<>(new FilesystemSummary(root.getName(), root.length(), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
+            return Optional.of(new Tree<>(new FilesystemSummary(path, subTreeBytes, subTreeCount), children));
+        } else if (path.isFile()) {
+            Log.v("Scanner", "Found " + path);
+            return Optional.of(new Tree<>(new FilesystemSummary(path, path.length(), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
         }
         return Optional.absent();
     }
