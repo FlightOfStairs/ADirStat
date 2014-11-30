@@ -14,8 +14,7 @@ import org.flightofstairs.adirstat.view.packing.PackingUtils.Split;
 import javax.annotation.Nonnull;
 
 import static java.lang.Math.max;
-import static org.flightofstairs.adirstat.view.packing.PackingUtils.*;
-import static org.flightofstairs.adirstat.view.packing.PackingUtils.Split.*;
+import static org.flightofstairs.adirstat.view.packing.PackingUtils.newBounds;
 
 public class SimpleProportionalAlternatingSplitPacker implements Packer {
     public SimpleProportionalAlternatingSplitPacker(Scaling scaling) {
@@ -27,7 +26,7 @@ public class SimpleProportionalAlternatingSplitPacker implements Packer {
     @Nonnull
     @Override
     public Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
-        return pack(summaryTree, bounds, bounds.width() < bounds.height() ? VERTICAL : HORIZONTAL);
+        return pack(summaryTree, bounds, Split.forBounds(bounds));
     }
 
     private Tree<DisplayNode> pack(Tree<FilesystemSummary> summaryTree, Rect bounds, Split split) {

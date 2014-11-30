@@ -9,6 +9,10 @@ public class PackingUtils {
         VERTICAL, HORIZONTAL;
 
         public Split invert() { return values()[(this.ordinal() + 1) % 2]; }
+
+        public static Split forBounds(Rect bounds) {
+            return bounds.width() < bounds.height() ? VERTICAL : HORIZONTAL;
+        }
     }
 
     public static Rect newBounds(Rect bounds, Split split, double fraction, double priorFraction) {
