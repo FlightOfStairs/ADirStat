@@ -5,7 +5,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Verify;
 import lombok.SneakyThrows;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -18,7 +18,7 @@ public enum Colouring implements Function<File, Integer> {
     BASIC;
 
     @SneakyThrows
-    @Nullable
+    @Nonnull
     @Override
     public Integer apply(File file) {
         Verify.verify(file.exists());
@@ -35,5 +35,4 @@ public enum Colouring implements Function<File, Integer> {
 
         return possibleMimeType.transform((mimetype) -> HSVToColor(new float[] {(mimetype.hashCode() % 36) * 10, 1, 1})).or(LTGRAY);
     }
-
 }
