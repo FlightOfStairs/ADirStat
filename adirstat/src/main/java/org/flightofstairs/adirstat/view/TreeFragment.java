@@ -72,6 +72,9 @@ public class TreeFragment extends RoboFragment {
         Predicate<DisplayNode> searchPredicate = (node) -> node.getBounds().contains((int) event.getX(), (int) event.getY()) && min(node.getBounds().width(), node.getBounds().height()) >= event.getToolMajor() / 2;
         Optional<Tree<DisplayNode>> possibleTree = displayNodes.descendWhile(searchPredicate);
 
-        Toast.makeText(getActivity().getApplicationContext(), possibleTree.transform((node) -> node.getValue().getFile().toString()).or("Missing file? Weird."), LENGTH_SHORT).show();
+        if (!possibleTree.isPresent()) return;
+        Tree<DisplayNode> node = possibleTree.get();
+
+        Toast.makeText(getActivity().getApplicationContext(), node.getValue().getFile().toString(), LENGTH_SHORT).show();
     }
 }
