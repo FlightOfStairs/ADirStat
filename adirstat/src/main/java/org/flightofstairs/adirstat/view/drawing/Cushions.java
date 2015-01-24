@@ -20,7 +20,7 @@ import static java.lang.Math.min;
  * Implementation of "Cushion Treemaps: Visualization of Hierarchical Information"
  * See http://www.win.tue.nl/~vanwijk/ctm.pdf
  */
-public class Cushions implements Drawing {
+public class Cushions {
 
     public static final double F = 0.75;
 
@@ -40,7 +40,6 @@ public class Cushions implements Drawing {
         this.colouring = colouring;
     }
 
-    @Override
     public void draw(@Nonnull Tree<DisplayNode> node, @Nonnull Canvas canvas) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 

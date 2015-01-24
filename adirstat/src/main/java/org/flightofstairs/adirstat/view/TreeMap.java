@@ -7,7 +7,7 @@ import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.model.FilesystemSummary;
-import org.flightofstairs.adirstat.view.drawing.Drawing;
+import org.flightofstairs.adirstat.view.drawing.Cushions;
 import org.flightofstairs.adirstat.view.packing.Packing;
 
 import javax.annotation.Nonnull;
@@ -16,15 +16,15 @@ public class TreeMap extends Drawable {
     private final Bus bus;
     private final Tree<FilesystemSummary> summaryTree;
     private final Packing packing;
-    private final Drawing drawing;
+    private final Cushions cushions;
 
     private Optional<Tree<DisplayNode>> root = Optional.absent();
 
-    public TreeMap(@Nonnull Bus bus, @Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Packing packing, @Nonnull Drawing drawing) {
+    public TreeMap(@Nonnull Bus bus, @Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Packing packing, @Nonnull Cushions cushions) {
         this.bus = bus;
         this.summaryTree = summaryTree;
         this.packing = packing;
-        this.drawing = drawing;
+        this.cushions = cushions;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class TreeMap extends Drawable {
             root = Optional.of(packing.pack(summaryTree, canvas.getClipBounds()));
             bus.post(root.get());
         }
-        drawing.draw(root.get(), canvas);
+        cushions.draw(root.get(), canvas);
     }
 
     @Override
