@@ -16,7 +16,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import static com.google.common.base.Verify.verify;
-import static org.flightofstairs.adirstat.view.packing.PackingUtils.newBounds;
 
 /**
  * An implementation of the "Squarified Treemaps": http://www.win.tue.nl/~vanwijk/stm.pdf
@@ -113,5 +112,32 @@ public class SquarifiedPacking implements Packing {
         }
 
         return Math.max((w * w * max) / (s * s), (s * s) / (w * w * min));
+    }
+
+
+    private static final double EPSILON = 0.00001;
+
+    @Nonnull
+    private static Rect newBounds(@Nonnull Rect bounds, double fraction, double priorFraction) {
+
+        verify(fraction + priorFraction <= 1 + EPSILON, "fraction (%d) & prior fraction (%d) more than 1 + EPSILON ", fraction, priorFraction);
+
+        Rect newBounds;
+
+        if (bounds.width() >= bounds.height()) {
+            double left = bounds.left + bounds.width() * priorFraction;
+            double right =  left + (bounds.width() * fraction);
+
+            newBounds = new Rect((int) left, bounds.top, (int) right, bounds.bottom);
+        } else {
+            double top = bounds.top + bounds.height() * priorFraction;
+            double bottom =  top + bounds.height() * fraction;
+
+            newBounds = new Rect(bounds.left, (int) top, bounds.right, (int) bottom);
+        }
+
+        verify(newBounds.left >= bounds.left && newBounds.top >= bounds.top && newBounds.right <= bounds.right && newBounds.bottom <= bounds.bottom);
+
+        return newBounds;
     }
 }
