@@ -9,7 +9,7 @@ import android.util.Log;
 import com.google.common.base.Stopwatch;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.view.DisplayNode;
-import org.flightofstairs.adirstat.view.colouring.Colouring;
+import org.flightofstairs.adirstat.view.colouring.BasicColouring;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +20,7 @@ import static java.lang.Math.min;
  * Implementation of "Cushion Treemaps: Visualization of Hierarchical Information"
  * See http://www.win.tue.nl/~vanwijk/ctm.pdf
  */
-public class Cushions {
+public final class Cushions {
 
     public static final double F = 0.75;
 
@@ -34,23 +34,17 @@ public class Cushions {
 
     public static final int MIN_DIMENSION = 1;
 
-    private final Colouring colouring;
-
-    public Cushions(Colouring colouring) {
-        this.colouring = colouring;
-    }
-
-    public void draw(@Nonnull Tree<DisplayNode> node, @Nonnull Canvas canvas) {
+    public static void draw(@Nonnull Tree<DisplayNode> node, @Nonnull Canvas canvas) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Bitmap bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
         ctm(node, null, 0.5, Surface.create(), bitmap);
         canvas.drawBitmap(bitmap, 0f, 0f, new Paint());
 
-        Log.d(getClass().getSimpleName(), "Rendered cushion treemap in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        Log.d(Cushions.class.getSimpleName(), "Rendered cushion treemap in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
     }
 
-    public void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double h, Surface s, Bitmap bitmap) {
+    public static void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double h, Surface s, Bitmap bitmap) {
         Rect bounds = node.getValue().getBounds();
 
         if (min(bounds.width(), bounds.height()) < MIN_DIMENSION) return;
@@ -66,11 +60,11 @@ public class Cushions {
         }
     }
 
-    public void renderCushion(Surface s, Bitmap bitmap, DisplayNode displayNode) {
+    public static void renderCushion(Surface s, Bitmap bitmap, DisplayNode displayNode) {
         Rect bounds = displayNode.getBounds();
 
         double[] intensities = calculateIntensities(s, bounds);
-        int[] pixels = calculatePixels(colouring.apply(displayNode.getFile()), intensities);
+        int[] pixels = calculatePixels(BasicColouring.getColour(displayNode.getFile()), intensities);
 
         bitmap.setPixels(pixels, 0, bounds.width(), bounds.left, bounds.top, bounds.width(), bounds.height());
     }
@@ -110,4 +104,6 @@ public class Cushions {
         }
         return intensities;
     }
+
+    private Cushions() { }
 }

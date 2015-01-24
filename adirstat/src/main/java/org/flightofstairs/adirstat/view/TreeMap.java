@@ -15,14 +15,12 @@ import javax.annotation.Nonnull;
 public class TreeMap extends Drawable {
     private final Bus bus;
     private final Tree<FilesystemSummary> summaryTree;
-    private final Cushions cushions;
 
     private Optional<Tree<DisplayNode>> root = Optional.absent();
 
-    public TreeMap(@Nonnull Bus bus, @Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Cushions cushions) {
+    public TreeMap(@Nonnull Bus bus, @Nonnull Tree<FilesystemSummary> summaryTree) {
         this.bus = bus;
         this.summaryTree = summaryTree;
-        this.cushions = cushions;
     }
 
     @Override
@@ -31,7 +29,7 @@ public class TreeMap extends Drawable {
             root = Optional.of(SquarifiedPacking.pack(summaryTree, canvas.getClipBounds()));
             bus.post(root.get());
         }
-        cushions.draw(root.get(), canvas);
+        Cushions.draw(root.get(), canvas);
     }
 
     @Override

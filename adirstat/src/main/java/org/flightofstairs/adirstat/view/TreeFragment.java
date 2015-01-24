@@ -16,8 +16,6 @@ import lombok.SneakyThrows;
 import org.flightofstairs.adirstat.R;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.model.FilesystemSummary;
-import org.flightofstairs.adirstat.view.colouring.BasicColouring;
-import org.flightofstairs.adirstat.view.drawing.Cushions;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -56,7 +54,7 @@ public class TreeFragment extends RoboFragment {
         Toast.makeText(getActivity().getApplicationContext(), message, LENGTH_LONG).show();
 
         if (node.isPresent()) {
-            TreeMap drawable = new TreeMap(bus, node.get(), new Cushions(BasicColouring.BASIC));
+            TreeMap drawable = new TreeMap(bus, node.get());
             imageView.setImageDrawable(drawable);
         }
     }
