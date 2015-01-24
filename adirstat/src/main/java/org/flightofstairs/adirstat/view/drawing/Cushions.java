@@ -27,9 +27,6 @@ public class Cushions implements Drawing {
     private static final int D1 = 0;
     private static final int D2 = 1;
 
-    private static final int BOUND_MIN = 0;
-    private static final int BOUND_MAX = 1;
-
     private final Colouring colouring;
 
     public Cushions(Colouring colouring) {
@@ -48,70 +45,67 @@ public class Cushions implements Drawing {
     }
 
     public void makeCushionTreeMap(Tree<DisplayNode> root, Bitmap bitmap) {
-        double r[][] = new double[2][2];
-        r[DIR_X][BOUND_MIN] = 0.0;
-        r[DIR_X][BOUND_MAX] = bitmap.getWidth() + 0.0;
-        r[DIR_Y][BOUND_MIN] = 0.0;
-        r[DIR_Y][BOUND_MAX] = bitmap.getHeight() + 0.0;
-
         double[][] s = new double[2][2];
         s[DIR_X][D1] = 0.0;
         s[DIR_X][D2] = 0.0;
         s[DIR_X][D1] = 0.0;
         s[DIR_X][D2] = 0.0;
 
-        ctm(root, null, r, 0.5, 0.75, DIR_X, s, bitmap);
+        ctm(root, null, 0.5, 0.75, s, bitmap);
     }
 
-    public void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double[][] r, double h, double f, Integer d, double[][] s, Bitmap bitmap) {
+    public void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double h, double f, double[][] s, Bitmap bitmap) {
         if (parent != null) {
-            addRidge(d, r, s, h);
+            addRidge(s, h, node);
         }
 
         if (node.getChildren().isEmpty()) {
-            renderCushion(r, s, bitmap, node.getValue());
+            renderCushion(s, bitmap, node.getValue());
         } else {
-            d = d == DIR_X ? DIR_Y : DIR_X;
-
-            double area = area(node.getValue().getBounds());
-
-            double w = (r[d][BOUND_MAX] - r[d][BOUND_MIN]) / area;
 
             for (Tree<DisplayNode> child : node.getChildren()) {
-                r[d][BOUND_MAX] = r[d][BOUND_MIN] + w * area(child.getValue().getBounds());
-                ctm(child, node, r, h * f, f, d, s, bitmap);
-                r[d][BOUND_MIN] = r[d][BOUND_MAX];
+                ctm(child, node, h * f, f, s, bitmap);
             }
         }
     }
 
-    public void addRidge(Integer d, double[][] r, double[][] s, double h) {
-        double x1 = r[d][BOUND_MIN];
-        double x2 = r[d][BOUND_MAX];
-        if ((x2 - x1) < 0.000001) return;
+    public void addRidge(double[][] s, double h, Tree<DisplayNode> node) {
+        Rect bounds = node.getValue().getBounds();
 
-        s[d][D1] = s[d][D1] + 4 * h * ((x2 + x1) / (x2 - x1));
-        s[d][D2] = s[d][D2] - 4 * h / (x2 - x1);
+        double x1 = bounds.left;
+        double x2 = bounds.right;
+
+        double y1 = bounds.top;
+        double y2 = bounds.bottom;
+
+        s[DIR_X][D1] = s[DIR_X][D1] + 4 * h * ((x2 + x1) / (x2 - x1));
+        s[DIR_X][D2] = s[DIR_X][D2] - 4 * h / (x2 - x1);
+
+        s[DIR_Y][D1] = s[DIR_Y][D1] + 4 * h * ((y2 + y1) / (y2 - y1));
+        s[DIR_Y][D2] = s[DIR_Y][D2] - 4 * h / (y2 - y1);
     }
 
     // This is a /very/ naive implementation of the algorithm.
     // Refactoring and optimisation comes later.
-    public void renderCushion(double[][] r, double[][] s, Bitmap bitmap, DisplayNode displayNode) {
+    public void renderCushion(double[][] s, Bitmap bitmap, DisplayNode displayNode) {
         double  Ia = 40,
                 Is = 215,
                 Lx = 0.09759,
                 Ly = 0.19518,
                 Lz = 0.9759;
 
-        int xMin = (int) (r[DIR_X][BOUND_MIN] + 0.5);
-        int xMax = (int) (r[DIR_X][BOUND_MAX] - 0.5);
+        Rect bounds = displayNode.getBounds();
+        int xMin = bounds.left;
+        int xMax = bounds.right;
         int width = Math.max(0, xMax - xMin);
 
-        int yMin = (int) (r[DIR_Y][BOUND_MIN] + 0.5);
-        int yMax = (int) (r[DIR_Y][BOUND_MAX] - 0.5);
+        int yMin = bounds.top;
+        int yMax = bounds.bottom;
         int height = Math.max(0, yMax - yMin);
 
-        if (width  <= 0 || height <= 0) return;
+        if (width  <= 10 || height <= 10) {
+            return;
+        }
 
         float[] hsv = new float[3];
         final int colour = colouring.apply(displayNode.getFile());
@@ -133,9 +127,5 @@ public class Cushions implements Drawing {
             }
         }
         bitmap.setPixels(pixels, 0, width, xMin, yMin, width, height);
-    }
-
-    private static double area(Rect rect) {
-        return rect.width() * rect.height();
     }
 }
