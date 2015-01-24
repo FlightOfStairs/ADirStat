@@ -55,6 +55,8 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
 
     @VisibleForTesting
     static Optional<Tree<FilesystemSummary>> recursiveList(File path) {
+        if (path.getName().startsWith(".")) return Optional.absent();
+
         if (path.isDirectory()) {
             long subTreeBytes = 0;
             long subTreeCount = 0;
