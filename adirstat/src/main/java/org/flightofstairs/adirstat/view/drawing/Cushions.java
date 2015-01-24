@@ -15,17 +15,23 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Math.min;
+
 /**
  * Implementation of "Cushion Treemaps: Visualization of Hierarchical Information"
  * See http://www.win.tue.nl/~vanwijk/ctm.pdf
  */
 public class Cushions implements Drawing {
 
-    private static final int DIR_X = 0;
-    private static final int DIR_Y = 1;
+    // Rendering constants... I wonder what these do?
+    private static final double
+            Ia = 40,
+            Is = 215,
+            Lx = 0.09759,
+            Ly = 0.19518,
+            Lz = 0.9759;
 
-    private static final int D1 = 0;
-    private static final int D2 = 1;
+    public static final int MIN_DIMENSION = 10;
 
     private final Colouring colouring;
 
@@ -45,87 +51,74 @@ public class Cushions implements Drawing {
     }
 
     public void makeCushionTreeMap(Tree<DisplayNode> root, Bitmap bitmap) {
-        double[][] s = new double[2][2];
-        s[DIR_X][D1] = 0.0;
-        s[DIR_X][D2] = 0.0;
-        s[DIR_X][D1] = 0.0;
-        s[DIR_X][D2] = 0.0;
-
-        ctm(root, null, 0.5, 0.75, s, bitmap);
+        ctm(root, null, 0.5, 0.75, new Surface(0, 0, 0, 0), bitmap);
     }
 
-    public void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double h, double f, double[][] s, Bitmap bitmap) {
+    public void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double h, double f, Surface s, Bitmap bitmap) {
         if (parent != null) {
-            addRidge(s, h, node);
+            s = addRidge(s, h, node);
         }
 
         if (node.getChildren().isEmpty()) {
             renderCushion(s, bitmap, node.getValue());
         } else {
-
             for (Tree<DisplayNode> child : node.getChildren()) {
                 ctm(child, node, h * f, f, s, bitmap);
             }
         }
     }
 
-    public void addRidge(double[][] s, double h, Tree<DisplayNode> node) {
+    public Surface addRidge(Surface s, double h, Tree<DisplayNode> node) {
         Rect bounds = node.getValue().getBounds();
 
-        double x1 = bounds.left;
-        double x2 = bounds.right;
-
-        double y1 = bounds.top;
-        double y2 = bounds.bottom;
-
-        s[DIR_X][D1] = s[DIR_X][D1] + 4 * h * ((x2 + x1) / (x2 - x1));
-        s[DIR_X][D2] = s[DIR_X][D2] - 4 * h / (x2 - x1);
-
-        s[DIR_Y][D1] = s[DIR_Y][D1] + 4 * h * ((y2 + y1) / (y2 - y1));
-        s[DIR_Y][D2] = s[DIR_Y][D2] - 4 * h / (y2 - y1);
+        return new Surface(
+                s.x1 + 4 * h * ((bounds.right + bounds.left) / (double) (bounds.right - bounds.left)),
+                s.x2 - 4 * h / (bounds.right - bounds.left),
+                s.y1 + 4 * h * ((bounds.bottom + bounds.top) / (double) (bounds.bottom - bounds.top)),
+                s.y2 - 4 * h / (bounds.bottom - bounds.top));
     }
 
-    // This is a /very/ naive implementation of the algorithm.
-    // Refactoring and optimisation comes later.
-    public void renderCushion(double[][] s, Bitmap bitmap, DisplayNode displayNode) {
-        double  Ia = 40,
-                Is = 215,
-                Lx = 0.09759,
-                Ly = 0.19518,
-                Lz = 0.9759;
-
+    public void renderCushion(Surface s, Bitmap bitmap, DisplayNode displayNode) {
         Rect bounds = displayNode.getBounds();
-        int xMin = bounds.left;
-        int xMax = bounds.right;
-        int width = Math.max(0, xMax - xMin);
 
-        int yMin = bounds.top;
-        int yMax = bounds.bottom;
-        int height = Math.max(0, yMax - yMin);
-
-        if (width  <= 10 || height <= 10) {
-            return;
-        }
+        if (min(bounds.width(), bounds.height()) < MIN_DIMENSION) return;
 
         float[] hsv = new float[3];
         final int colour = colouring.apply(displayNode.getFile());
         Color.colorToHSV(colour, hsv);
 
-        int[] pixels = new int[width * height];
+        int[] pixels = new int[bounds.width() * bounds.height()];
         Arrays.fill(pixels, Color.HSVToColor(new float[]{hsv[0], 1, 0}));
 
-        for(int y = 0; y < height; y++) {
-            double ny = -(2 * s[DIR_Y][D2] * (y + yMin + 0.5) + s[DIR_Y][D1]);
-            for(int x = 0; x < width; x++) {
-                double nx = -(2 * s[DIR_X][D2] * (x + xMin + 0.5) + s[DIR_X][D1]);
+        for(int y = 0; y < bounds.height(); y++) {
+            double ny = -(2 * s.y2 * (y + bounds.top + 0.5) + s.y1);
+            for(int x = 0; x < bounds.width(); x++) {
+                double nx = -(2 * s.x2 * (x + bounds.left + 0.5) + s.x1);
                 double cosa = (nx * Lx + ny * Ly + Lz) / Math.sqrt(nx * nx + ny * ny + 1.0);
 
                 float intensity = (float) (Ia + Math.max(0, Is * cosa));
                 int shadedColour = Color.HSVToColor(new float[]{hsv[0], 1, intensity / 300f});
 
-                pixels[x + y * width] = shadedColour;
+                pixels[x + y * bounds.width()] = shadedColour;
             }
         }
-        bitmap.setPixels(pixels, 0, width, xMin, yMin, width, height);
+
+        bitmap.setPixels(pixels, 0, bounds.width(), bounds.left, bounds.top, bounds.width(), bounds.height());
+    }
+
+    // Parabolic constants for cushion 'height'
+    private static class Surface {
+        private final double x1;
+        private final double x2;
+
+        private final double y1;
+        private final double y2;
+
+        private Surface(double x1, double x2, double y1, double y2) {
+            this.x1 = x1;
+            this.x2 = x2;
+            this.y1 = y1;
+            this.y2 = y2;
+        }
     }
 }
