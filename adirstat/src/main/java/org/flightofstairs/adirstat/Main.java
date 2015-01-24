@@ -8,8 +8,6 @@ import org.flightofstairs.adirstat.model.Scanner;
 import org.flightofstairs.adirstat.view.TreeFragment;
 import roboguice.activity.RoboActivity;
 
-import java.io.File;
-
 public class Main extends RoboActivity {
     @Inject Bus bus;
 
@@ -28,6 +26,6 @@ public class Main extends RoboActivity {
     public void onStart() {
         super.onStart();
 
-        new Scanner(bus).execute(new File(Environment.getExternalStorageDirectory(), "adirstat-test-files"));
+        new Scanner(bus).execute(Environment.getExternalStorageDirectory());
     }
 }
