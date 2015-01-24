@@ -29,7 +29,7 @@ public class SquarifiedPackingTest {
                                         new Tree<>(new DisplayNode(new File("root/dir1/dir2/3byteFile.txt"), new Rect(400, 150, 600, 300)), EMPTY_DISPLAY),
                                         new Tree<>(new DisplayNode(new File("root/dir1/dir2/3byteFile2.txt"), new Rect(600, 150, 800, 300)), EMPTY_DISPLAY)))))));
 
-        Tree<DisplayNode> actual = new SquarifiedPacking().pack(TestTrees.FS_SUMMARY_TREE, new Rect(0, 0, 800, 300));
+        Tree<DisplayNode> actual = SquarifiedPacking.pack(TestTrees.FS_SUMMARY_TREE, new Rect(0, 0, 800, 300));
 
         Assert.assertEquals(expected, actual);
     }

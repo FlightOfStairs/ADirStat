@@ -20,20 +20,19 @@ import static com.google.common.base.Verify.verify;
 /**
  * An implementation of the "Squarified Treemaps": http://www.win.tue.nl/~vanwijk/stm.pdf
  */
-public class SquarifiedPacking implements Packing {
+public class SquarifiedPacking {
     private static final Comparator<Tree<FilesystemSummary>> DESCENDING_SUMMARY_TREES = (a, b) ->
             ComparisonChain.start()
                 .compare(b.getValue().getSubTreeBytes(), a.getValue().getSubTreeBytes())
                 .compare(a.getValue().getPath(), b.getValue().getPath()).result();
 
     @Nonnull
-    @Override
-    public Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
+    public static Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
         return new Tree<>(new DisplayNode(summaryTree.getValue().getPath(), bounds), packChildren(summaryTree.getChildren(), bounds, summaryTree.getValue().getSubTreeBytes()));
     }
 
     @Nonnull
-    public ImmutableSortedSet<Tree<DisplayNode>> packChildren(@Nonnull Collection<Tree<FilesystemSummary>> summaryTrees, @Nonnull Rect bounds, long totalBytes) {
+    private static ImmutableSortedSet<Tree<DisplayNode>> packChildren(@Nonnull Collection<Tree<FilesystemSummary>> summaryTrees, @Nonnull Rect bounds, long totalBytes) {
         ImmutableSortedSet.Builder<Tree<DisplayNode>> displayTrees = ImmutableSortedSet.naturalOrder();
 
         /*  I really don't like this pattern - it requires mutable parameters.
@@ -65,7 +64,7 @@ public class SquarifiedPacking implements Packing {
     }
 
     @Nonnull
-    private Set<Tree<DisplayNode>> placeRow(@Nonnull Iterable<Tree<FilesystemSummary>> row, @Nonnull Rect rowBounds, long rowTotalBytes) {
+    private static Set<Tree<DisplayNode>> placeRow(@Nonnull Iterable<Tree<FilesystemSummary>> row, @Nonnull Rect rowBounds, long rowTotalBytes) {
         ImmutableSortedSet.Builder<Tree<DisplayNode>> rowChildren = ImmutableSortedSet.naturalOrder();
 
         double priorFraction = 0;
@@ -80,7 +79,7 @@ public class SquarifiedPacking implements Packing {
     }
 
     @Nonnull
-    private NavigableSet<Tree<FilesystemSummary>> firstRow(Rect bounds, long totalBytes, NavigableSet<Tree<FilesystemSummary>> descendingSize) {
+    private static NavigableSet<Tree<FilesystemSummary>> firstRow(Rect bounds, long totalBytes, NavigableSet<Tree<FilesystemSummary>> descendingSize) {
         int width = Math.max(bounds.width(), bounds.height());
 
         NavigableSet<Tree<FilesystemSummary>> row = descendingSize.headSet(descendingSize.first(), true);
@@ -101,7 +100,7 @@ public class SquarifiedPacking implements Packing {
     }
 
     // See paper
-    private double worst(NavigableSet<Double> areas, int w) {
+    private static double worst(NavigableSet<Double> areas, int w) {
         double s = 0;
         double min = areas.first();
         double max = min;
