@@ -42,11 +42,10 @@ public class Cushions implements Drawing {
 
     @Override
     public void draw(@Nonnull Tree<DisplayNode> node, @Nonnull Canvas canvas) {
-
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Bitmap bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
-        ctm(node, null, 0.5, new Surface(0, 0, 0, 0), bitmap);
+        ctm(node, null, 0.5, Surface.create(), bitmap);
         canvas.drawBitmap(bitmap, 0f, 0f, new Paint());
 
         Log.d(getClass().getSimpleName(), "Rendered cushion treemap in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
@@ -57,9 +56,7 @@ public class Cushions implements Drawing {
 
         if (min(bounds.width(), bounds.height()) < MIN_DIMENSION) return;
 
-        if (parent != null) {
-            s = addRidge(s, h, bounds);
-        }
+        if (parent != null) s = s.addCushion(bounds, h);
 
         if (node.getChildren().isEmpty()) {
             renderCushion(s, bitmap, node.getValue());
@@ -68,14 +65,6 @@ public class Cushions implements Drawing {
                 ctm(child, node, h * F, s, bitmap);
             }
         }
-    }
-
-    public Surface addRidge(Surface s, double h, Rect bounds) {
-        return new Surface(
-                s.x1 + 4 * h * ((bounds.right + bounds.left) / (double) (bounds.right - bounds.left)),
-                s.x2 - 4 * h / (bounds.right - bounds.left),
-                s.y1 + 4 * h * ((bounds.bottom + bounds.top) / (double) (bounds.bottom - bounds.top)),
-                s.y2 - 4 * h / (bounds.bottom - bounds.top));
     }
 
     public void renderCushion(Surface s, Bitmap bitmap, DisplayNode displayNode) {
@@ -121,21 +110,5 @@ public class Cushions implements Drawing {
             }
         }
         return intensities;
-    }
-
-    // Parabolic constants for cushion 'height'
-    private static class Surface {
-        private final double x1;
-        private final double x2;
-
-        private final double y1;
-        private final double y2;
-
-        private Surface(double x1, double x2, double y1, double y2) {
-            this.x1 = x1;
-            this.x2 = x2;
-            this.y1 = y1;
-            this.y2 = y2;
-        }
     }
 }
