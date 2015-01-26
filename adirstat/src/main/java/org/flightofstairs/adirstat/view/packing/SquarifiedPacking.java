@@ -36,12 +36,10 @@ public class SquarifiedPacking {
 
     @Nonnull
     private static Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds, int depth) {
-        int padding = depth > 0 && min(bounds.width(), bounds.height()) > MAX_PADDING
-                ? Math.max(MAX_PADDING + 1 - depth, 0)
-                : 0;
+        int padding = min(bounds.width(), bounds.height()) > MAX_PADDING ? Math.max(MAX_PADDING - depth, 0) : 0;
 
         Rect paddedRect = new Rect(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
-        return new Tree<>(new DisplayNode(summaryTree.getValue().getPath(), paddedRect), packChildren(summaryTree.getChildren(), paddedRect, summaryTree.getValue().getSubTreeBytes(), depth));
+        return new Tree<>(new DisplayNode(summaryTree.getValue().getPath(), bounds), packChildren(summaryTree.getChildren(), paddedRect, summaryTree.getValue().getSubTreeBytes(), depth));
     }
 
     @Nonnull
