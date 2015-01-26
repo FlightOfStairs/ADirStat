@@ -1,5 +1,6 @@
 package org.flightofstairs.adirstat.model;
 
+import com.google.common.collect.ComparisonChain;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -14,7 +15,11 @@ public class FilesystemSummary implements Comparable<FilesystemSummary> {
     private long subTreeCount;
 
     @Override
-    public int compareTo(FilesystemSummary other) {
-        return this.path.compareTo(other.path);
+    public int compareTo(@Nonnull FilesystemSummary other) {
+        return ComparisonChain.start()
+                .compare(path, other.path)
+                .compare(subTreeBytes, other.subTreeBytes)
+                .compare(subTreeCount, other.subTreeCount)
+                .result();
     }
 }

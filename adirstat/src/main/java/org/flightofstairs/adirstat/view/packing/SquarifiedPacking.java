@@ -16,11 +16,14 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import static com.google.common.base.Verify.verify;
+import static java.lang.Math.min;
 
 /**
  * An implementation of the "Squarified Treemaps": http://www.win.tue.nl/~vanwijk/stm.pdf
  */
 public class SquarifiedPacking {
+    public static final int MAX_PADDING = 5;
+
     private static final Comparator<Tree<FilesystemSummary>> DESCENDING_SUMMARY_TREES = (a, b) ->
             ComparisonChain.start()
                 .compare(b.getValue().getSubTreeBytes(), a.getValue().getSubTreeBytes())
@@ -28,11 +31,21 @@ public class SquarifiedPacking {
 
     @Nonnull
     public static Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds) {
-        return new Tree<>(new DisplayNode(summaryTree.getValue().getPath(), bounds), packChildren(summaryTree.getChildren(), bounds, summaryTree.getValue().getSubTreeBytes()));
+        return pack(summaryTree, bounds, 0);
     }
 
     @Nonnull
-    private static ImmutableSortedSet<Tree<DisplayNode>> packChildren(@Nonnull Collection<Tree<FilesystemSummary>> summaryTrees, @Nonnull Rect bounds, long totalBytes) {
+    private static Tree<DisplayNode> pack(@Nonnull Tree<FilesystemSummary> summaryTree, @Nonnull Rect bounds, int depth) {
+        int padding = depth > 0 && min(bounds.width(), bounds.height()) > MAX_PADDING
+                ? Math.max(MAX_PADDING + 1 - depth, 0)
+                : 0;
+
+        Rect paddedRect = new Rect(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
+        return new Tree<>(new DisplayNode(summaryTree.getValue().getPath(), paddedRect), packChildren(summaryTree.getChildren(), paddedRect, summaryTree.getValue().getSubTreeBytes(), depth));
+    }
+
+    @Nonnull
+    private static ImmutableSortedSet<Tree<DisplayNode>> packChildren(@Nonnull Collection<Tree<FilesystemSummary>> summaryTrees, @Nonnull Rect bounds, long totalBytes, int depth) {
         ImmutableSortedSet.Builder<Tree<DisplayNode>> displayTrees = ImmutableSortedSet.naturalOrder();
 
         /*  I really don't like this pattern - it requires mutable parameters.
@@ -53,7 +66,7 @@ public class SquarifiedPacking {
             NavigableSet<Tree<FilesystemSummary>> remaining = descendingSize.tailSet(row.last(), false);
             verify(remaining.size() + row.size() == summaryTrees.size());
 
-            displayTrees.addAll(placeRow(row, newBounds(bounds, rowFraction, 0), rowTotalBytes));
+            displayTrees.addAll(placeRow(row, newBounds(bounds, rowFraction, 0), rowTotalBytes, depth));
 
             summaryTrees = remaining;
             bounds = newBounds(bounds, 1 - rowFraction, rowFraction);
@@ -64,14 +77,14 @@ public class SquarifiedPacking {
     }
 
     @Nonnull
-    private static Set<Tree<DisplayNode>> placeRow(@Nonnull Iterable<Tree<FilesystemSummary>> row, @Nonnull Rect rowBounds, long rowTotalBytes) {
+    private static Set<Tree<DisplayNode>> placeRow(@Nonnull Iterable<Tree<FilesystemSummary>> row, @Nonnull Rect rowBounds, long rowTotalBytes, int depth) {
         ImmutableSortedSet.Builder<Tree<DisplayNode>> rowChildren = ImmutableSortedSet.naturalOrder();
 
         double priorFraction = 0;
         for (Tree<FilesystemSummary> summaryTree : row) {
             double fraction = rowTotalBytes == 0 ? 0 : summaryTree.getValue().getSubTreeBytes() / (double) rowTotalBytes;
 
-            rowChildren.add(pack(summaryTree, newBounds(rowBounds, fraction, priorFraction)));
+            rowChildren.add(pack(summaryTree, newBounds(rowBounds, fraction, priorFraction), depth + 1));
             priorFraction += fraction;
         }
 
@@ -106,7 +119,7 @@ public class SquarifiedPacking {
         double max = min;
         for (double area : areas) {
             s += area;
-            min = Math.min(min, area);
+            min = min(min, area);
             max = Math.max(max, area);
         }
 
