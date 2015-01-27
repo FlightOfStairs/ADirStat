@@ -21,6 +21,7 @@ import roboguice.inject.InjectView;
 
 import javax.annotation.Nonnull;
 
+import static android.view.MotionEvent.ACTION_DOWN;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.lang.Math.min;
@@ -62,7 +63,7 @@ public class TreeFragment extends RoboFragment {
     @Subscribe
     public void onPackedDisplayNodes(@Nonnull Tree<DisplayNode> displayNodes) {
         imageView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) handleClick(displayNodes, event);
+            if (event.getAction() == ACTION_DOWN) handleClick(displayNodes, event);
             return true;
         });
     }
@@ -75,5 +76,7 @@ public class TreeFragment extends RoboFragment {
         Tree<DisplayNode> node = possibleTree.get();
 
         Toast.makeText(getActivity().getApplicationContext(), node.getValue().getFile().toString(), LENGTH_SHORT).show();
+
+        bus.post(node.getValue());
     }
 }

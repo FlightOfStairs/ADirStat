@@ -1,9 +1,7 @@
 package org.flightofstairs.adirstat.view.drawing;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 import com.google.common.base.Stopwatch;
@@ -34,14 +32,15 @@ public final class Cushions {
 
     public static final int MIN_DIMENSION = 1;
 
-    public static void draw(@Nonnull Tree<DisplayNode> node, @Nonnull Canvas canvas) {
+    public static Bitmap draw(@Nonnull Tree<DisplayNode> node, int width, int height) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        Bitmap bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         ctm(node, null, 0.5, Surface.create(), bitmap);
-        canvas.drawBitmap(bitmap, 0f, 0f, new Paint());
 
         Log.d(Cushions.class.getSimpleName(), "Rendered cushion treemap in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+
+        return bitmap;
     }
 
     public static void ctm(Tree<DisplayNode> node, Tree<DisplayNode> parent, double h, Surface s, Bitmap bitmap) {
