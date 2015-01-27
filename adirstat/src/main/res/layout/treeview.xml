@@ -27,15 +27,24 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/imageButton" />
+            android:layout_toStartOf="@+id/goToButton" />
 
         <ImageButton
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:id="@+id/imageButton"
+            android:id="@+id/goToButton"
+            android:src="@drawable/ic_action_forward"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/deleteButton"
+            android:src="@drawable/ic_action_discard"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/goToButton" />
     </RelativeLayout>
 
 </LinearLayout>
