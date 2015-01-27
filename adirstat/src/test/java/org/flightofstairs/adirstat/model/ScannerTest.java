@@ -45,7 +45,7 @@ public class ScannerTest {
         Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root);
         assertTrue(possibleNode.isPresent());
 
-        Tree<FilesystemSummary> file = new Tree<>(new FilesystemSummary(new File(root, "hello.txt"), 5, 0), EMPTY);
+        Tree<FilesystemSummary> file = new Tree<>(new FilesystemSummary(new File(root, "hello.txt"), 5, 1), EMPTY);
         Tree<FilesystemSummary> dir = new Tree<>(new FilesystemSummary(root, 5, 1), ImmutableSortedSet.of(file));
 
         assertEquals(dir, possibleNode.get());
@@ -84,8 +84,8 @@ public class ScannerTest {
         Tree<FilesystemSummary> dir = new Tree<>(new FilesystemSummary(root, 20, 6), ImmutableSortedSet.of(
                 new Tree<>(new FilesystemSummary(new File(root, "hello.txt"), 5, 1), EMPTY),
                 new Tree<>(new FilesystemSummary(new File(root, "world.txt"), 5, 1), EMPTY),
-                new Tree<>(new FilesystemSummary(new File(root, "second"), 4, 1), ImmutableSortedSet.of(new Tree<>(new FilesystemSummary(new File(root, "second/1.txt"), 1, 1), EMPTY), thirdTree)),
-                new Tree<>(new FilesystemSummary(new File(root, "fourth"), 4, 1), ImmutableSortedSet.of(new Tree<>(new FilesystemSummary(new File(root, "4.txt"), 4, 1), EMPTY)))));
+                new Tree<>(new FilesystemSummary(new File(root, "second"), 6, 3), ImmutableSortedSet.of(new Tree<>(new FilesystemSummary(new File(root, "second/1.txt"), 1, 1), EMPTY), thirdTree)),
+                new Tree<>(new FilesystemSummary(new File(root, "fourth"), 4, 1), ImmutableSortedSet.of(new Tree<>(new FilesystemSummary(new File(root, "fourth/4.txt"), 4, 1), EMPTY)))));
 
         assertEquals(dir, possibleNode.get());
     }
