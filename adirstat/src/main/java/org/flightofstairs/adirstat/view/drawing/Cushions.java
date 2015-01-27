@@ -9,7 +9,7 @@ import android.util.Log;
 import com.google.common.base.Stopwatch;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.view.DisplayNode;
-import org.flightofstairs.adirstat.view.colouring.BasicColouring;
+import org.flightofstairs.adirstat.view.colouring.Colouring;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +64,7 @@ public final class Cushions {
         Rect bounds = displayNode.getBounds();
 
         double[] intensities = calculateIntensities(s, bounds);
-        int[] pixels = calculatePixels(BasicColouring.getColour(displayNode.getFile()), intensities);
+        int[] pixels = calculatePixels(Colouring.getColour(displayNode.getFile()), intensities);
 
         bitmap.setPixels(pixels, 0, bounds.width(), bounds.left, bounds.top, bounds.width(), bounds.height());
     }

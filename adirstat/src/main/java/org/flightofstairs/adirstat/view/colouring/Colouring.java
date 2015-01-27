@@ -14,7 +14,7 @@ import static android.graphics.Color.LTGRAY;
 import static java.net.URLConnection.guessContentTypeFromName;
 import static java.net.URLConnection.guessContentTypeFromStream;
 
-public final class BasicColouring {
+public final class Colouring {
     @SneakyThrows
     public static int getColour(File file) {
         Verify.verify(file.exists());
@@ -37,5 +37,5 @@ public final class BasicColouring {
         return possibleMimeType.transform((mimetype) -> HSVToColor(new float[] {(mimetype.hashCode() % 36) * 10, 1, 1})).or(LTGRAY);
     }
 
-    private BasicColouring() { }
+    private Colouring() { }
 }
