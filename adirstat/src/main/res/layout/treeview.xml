@@ -21,13 +21,15 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="File details stub"
+            android:layout_height="match_parent"
+            android:maxHeight="50dp"
             android:id="@+id/fileDetails"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/goToButton" />
+            android:visibility="invisible"
+            android:scrollbars="vertical"
+            android:layout_toStartOf="@+id/deleteButton" />
 
         <ImageButton
             android:layout_width="50dp"
@@ -36,7 +38,10 @@
             android:src="@drawable/ic_action_forward"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignParentBottom="true"
+            android:visibility="invisible"
+            android:contentDescription="@string/goToButtonText"
+            style="?android:attr/borderlessButtonStyle" />
 
         <ImageButton
             android:layout_width="50dp"
@@ -44,7 +49,10 @@
             android:id="@+id/deleteButton"
             android:src="@drawable/ic_action_discard"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/goToButton" />
+            android:layout_toStartOf="@+id/goToButton"
+            android:visibility="invisible"
+            android:contentDescription="@string/deleteButtonText"
+            style="?android:attr/borderlessButtonStyle" />
     </RelativeLayout>
 
 </LinearLayout>

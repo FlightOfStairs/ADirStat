@@ -5,7 +5,6 @@ import android.os.Environment;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import org.flightofstairs.adirstat.model.Scanner;
-import org.flightofstairs.adirstat.view.TreeFragment;
 import roboguice.activity.RoboActivity;
 
 public class Main extends RoboActivity {
