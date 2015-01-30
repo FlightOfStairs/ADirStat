@@ -4,23 +4,26 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.Log;
+import android.util.Pair;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import lombok.SneakyThrows;
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.view.DisplayNode;
 import org.flightofstairs.adirstat.view.colouring.Colouring;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
 import static java.util.Collections.emptyList;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * Implementation of "Cushion Treemaps: Visualization of Hierarchical Information"
@@ -39,45 +42,42 @@ public final class Cushions {
             Lz = 0.9759;
 
     public static final int MIN_DIMENSION = 1;
+    public static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     @SneakyThrows
     public static Bitmap draw(@Nonnull Tree<DisplayNode> node, int width, int height) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
+        List<Future<Pair<Rect, int[]>>> futures = THREAD_POOL.invokeAll(ImmutableList.copyOf(ctm(node, 0.5, Surface.create(), true)));
+
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
-
-        for (Runnable renderer : ctm(node, 0.5, Surface.create(), bitmap, true)) {
-            executorService.submit(renderer);
+        for (Future<Pair<Rect, int[]>> future : futures) {
+            Rect bounds = future.get().first;
+            bitmap.setPixels(future.get().second, 0, bounds.width(), bounds.left, bounds.top, bounds.width(), bounds.height());
         }
-        executorService.shutdown();
-        executorService.awaitTermination(1, MINUTES);
 
         Log.d(Cushions.class.getSimpleName(), "Rendered cushion treemap in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
 
         return bitmap;
     }
 
-    public static Iterable<Runnable> ctm(Tree<DisplayNode> node, double h, Surface s, Bitmap bitmap, boolean isRoot) {
+    public static Iterable<Callable<Pair<Rect, int[]>>> ctm(Tree<DisplayNode> node, double h, Surface s, boolean isRoot) {
         Rect bounds = node.getValue().getBounds();
 
         if (min(bounds.width(), bounds.height()) < MIN_DIMENSION) return emptyList();
 
         Surface newSurface = isRoot ? s : s.addCushion(bounds, h);
 
-        if (node.getChildren().isEmpty()) return newArrayList(renderCushion(newSurface, bitmap, node.getValue()));
-        else return concat(transform(node.getChildren(), child -> ctm(child, h * F, newSurface, bitmap, false)));
+        if (node.getChildren().isEmpty()) return ImmutableList.of(renderCushion(newSurface, node.getValue()));
+        else return concat(transform(node.getChildren(), child -> ctm(child, h * F, newSurface, false)));
     }
 
-    public static Runnable renderCushion(Surface s, Bitmap bitmap, DisplayNode displayNode) {
+    public static Callable<Pair<Rect, int[]>> renderCushion(Surface s, DisplayNode displayNode) {
         return () -> {
-            Rect bounds = displayNode.getBounds();
-
-            double[] intensities = calculateIntensities(s, bounds);
+            double[] intensities = calculateIntensities(s, displayNode.getBounds());
             int[] pixels = calculatePixels(Colouring.getColour(displayNode.getFile()), intensities);
-
-            bitmap.setPixels(pixels, 0, bounds.width(), bounds.left, bounds.top, bounds.width(), bounds.height());
+            return Pair.create(displayNode.getBounds(), pixels);
         };
     }
 
