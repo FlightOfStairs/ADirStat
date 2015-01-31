@@ -6,6 +6,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
@@ -28,7 +29,6 @@ import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.Math.min;
 import static java.util.Locale.UK;
 
@@ -43,6 +43,7 @@ public class TreeFragment extends RoboFragment {
     @InjectView(R.id.fileDetails) private TextView fileDetails;
     @InjectView(R.id.goToButton) private ImageView goToButton;
     @InjectView(R.id.deleteButton) private ImageView deleteButton;
+    @InjectView(R.id.toolTip) private LinearLayout toolTip;
 
     @Override
     @SneakyThrows
@@ -87,7 +88,7 @@ public class TreeFragment extends RoboFragment {
 
         Tree<DisplayNode> node = possibleTree.get();
 
-        for (View view : newHashSet(fileDetails, deleteButton, goToButton)) view.setVisibility(VISIBLE);
+        toolTip.setVisibility(VISIBLE);
 
         fileDetails.setText(node.getValue().getFile().toString());
 
