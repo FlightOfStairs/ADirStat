@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
@@ -44,7 +45,9 @@ public class TreeFragment extends RoboFragment {
     @InjectView(R.id.fileDetails) private TextView fileDetails;
     @InjectView(R.id.goToButton) private ImageView goToButton;
     @InjectView(R.id.deleteButton) private ImageView deleteButton;
+
     @InjectView(R.id.toolTip) private LinearLayout toolTip;
+    @InjectView(R.id.nub) private RelativeLayout nub;
 
     @Override
     @SneakyThrows
@@ -105,11 +108,18 @@ public class TreeFragment extends RoboFragment {
         toolTip.setVisibility(VISIBLE);
 
         int top = node.getValue().getBounds().centerY();
+        int left = node.getValue().getBounds().centerX();
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) toolTip.getLayoutParams();
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(layoutParams);
-        params.setMargins(layoutParams.leftMargin, top, layoutParams.rightMargin, 0);
+        params.setMargins(0, top - nub.getHeight() / 2, 0, 0);
         toolTip.setLayoutParams(params);
+
+        LinearLayout.LayoutParams nubLayout = new LinearLayout.LayoutParams(nub.getLayoutParams());
+        nubLayout.setMargins(left - nub.getWidth() / 2, 0, 0, 0);
+        nub.setLayoutParams(nubLayout);
+
+
     }
 
     private static Optional<Tree<DisplayNode>> findClickedNode(Tree<DisplayNode> displayNodes, MotionEvent event) {

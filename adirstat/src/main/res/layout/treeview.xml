@@ -18,72 +18,88 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="#AA000000"
         android:layout_gravity="center_horizontal"
         android:visibility="invisible"
         >
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:maxHeight="50dp"
-            android:padding="5dp"
-            android:id="@+id/fileDetails"
+        <RelativeLayout
+            android:id="@+id/nub"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/nub"
             />
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:clickable="true"
+            android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/tooltip"
+            android:layout_gravity="center_horizontal"
             >
 
-            <ImageButton
-                android:layout_width="50dp"
+            <TextView
+                android:layout_width="fill_parent"
                 android:layout_height="50dp"
-                android:id="@+id/deleteButton"
-                android:src="@drawable/ic_action_discard"
-                android:contentDescription="@string/deleteButtonText"
-                style="?android:attr/borderlessButtonStyle"
+                android:maxHeight="50dp"
+                android:padding="5dp"
+                android:id="@+id/fileDetails"
                 />
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dip"
-                android:layout_weight="1" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                >
 
-            <ImageButton
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:id="@+id/upButton"
-                android:src="@drawable/ic_action_collapse"
-                android:contentDescription="@string/goToButtonText"
-                style="?android:attr/borderlessButtonStyle"
-                />
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/deleteButton"
+                    android:src="@drawable/ic_action_discard"
+                    android:contentDescription="@string/deleteButtonText"
+                    style="?android:attr/borderlessButtonStyle"
+                    />
 
-            <ImageButton
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:id="@+id/downButton"
-                android:src="@drawable/ic_action_expand"
-                android:contentDescription="@string/goToButtonText"
-                style="?android:attr/borderlessButtonStyle"
-                />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dip"
+                    android:layout_weight="1" />
 
-            <Space
-                android:layout_width="10dp"
-                android:layout_height="0dip"
-                />
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/upButton"
+                    android:src="@drawable/ic_action_collapse"
+                    android:contentDescription="@string/goToButtonText"
+                    style="?android:attr/borderlessButtonStyle"
+                    />
 
-            <ImageButton
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:id="@+id/goToButton"
-                android:src="@drawable/ic_action_forward"
-                android:contentDescription="@string/goToButtonText"
-                style="?android:attr/borderlessButtonStyle"
-                />
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/downButton"
+                    android:src="@drawable/ic_action_expand"
+                    android:contentDescription="@string/goToButtonText"
+                    style="?android:attr/borderlessButtonStyle"
+                    />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="0dip"
+                    />
+
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/goToButton"
+                    android:src="@drawable/ic_action_forward"
+                    android:contentDescription="@string/goToButtonText"
+                    style="?android:attr/borderlessButtonStyle"
+                    />
+            </LinearLayout>
+
         </LinearLayout>
-
 
     </LinearLayout>
 
