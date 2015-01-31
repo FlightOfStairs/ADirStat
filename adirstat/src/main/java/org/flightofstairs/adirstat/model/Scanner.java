@@ -66,7 +66,6 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
     @Override
     public void onCancelled() { bus.post(Optional.<Tree<FilesystemSummary>>absent()); }
 
-    @SneakyThrows
     @VisibleForTesting
     static Optional<Tree<FilesystemSummary>> recursiveList(File path) {
         if (path.getName().startsWith(".")) return Optional.absent();
@@ -90,7 +89,8 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
         return Optional.absent();
     }
 
-    private static Iterable<Optional<Tree<FilesystemSummary>>> listChildrenThreaded(File path) throws InterruptedException, java.util.concurrent.ExecutionException {
+    @SneakyThrows
+    private static Iterable<Optional<Tree<FilesystemSummary>>> listChildrenThreaded(File path) {
         List<Callable<Optional<Tree<FilesystemSummary>>>> toList = transform(copyOf(path.listFiles()), file -> (Callable<Optional<Tree<FilesystemSummary>>>) () -> Scanner.recursiveList(file));
 
         // Using semaphore to permit use of thread pool. If can't acquire, make progress with direct thread. Cannot deadlock.
