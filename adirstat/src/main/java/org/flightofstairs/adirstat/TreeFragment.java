@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -88,7 +89,7 @@ public class TreeFragment extends RoboFragment {
 
         Tree<DisplayNode> node = possibleTree.get();
 
-        toolTip.setVisibility(VISIBLE);
+        displayToolTip(node);
 
         fileDetails.setText(node.getValue().getFile().toString());
 
@@ -98,6 +99,17 @@ public class TreeFragment extends RoboFragment {
         goToButton.setOnClickListener(new GoToListener(this::startActivity, toaster, root, node));
 
         bus.post(node.getValue());
+    }
+
+    private void displayToolTip(Tree<DisplayNode> node) {
+        toolTip.setVisibility(VISIBLE);
+
+        int top = node.getValue().getBounds().centerY();
+
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) toolTip.getLayoutParams();
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(layoutParams);
+        params.setMargins(layoutParams.leftMargin, top, layoutParams.rightMargin, 0);
+        toolTip.setLayoutParams(params);
     }
 
     private static Optional<Tree<DisplayNode>> findClickedNode(Tree<DisplayNode> displayNodes, MotionEvent event) {
