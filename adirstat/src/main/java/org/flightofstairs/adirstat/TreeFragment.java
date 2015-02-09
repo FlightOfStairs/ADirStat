@@ -1,5 +1,6 @@
 package org.flightofstairs.adirstat;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -8,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
@@ -47,7 +47,9 @@ public class TreeFragment extends RoboFragment {
     @InjectView(R.id.deleteButton) private ImageView deleteButton;
 
     @InjectView(R.id.toolTip) private LinearLayout toolTip;
-    @InjectView(R.id.nub) private RelativeLayout nub;
+
+    @InjectView(R.id.nub) private View nub;
+    @InjectView(R.id.highlight) private View hightlight;
 
     @Override
     @SneakyThrows
@@ -92,7 +94,8 @@ public class TreeFragment extends RoboFragment {
 
         Tree<DisplayNode> node = possibleTree.get();
 
-        displayToolTip(node);
+        displayHighlight(node.getValue().getBounds());
+        displayToolTip(node.getValue().getBounds());
 
         fileDetails.setText(node.getValue().getFile().toString());
 
@@ -104,22 +107,22 @@ public class TreeFragment extends RoboFragment {
         bus.post(node.getValue());
     }
 
-    private void displayToolTip(Tree<DisplayNode> node) {
+    private void displayToolTip(Rect bounds) {
         toolTip.setVisibility(VISIBLE);
 
-        int top = node.getValue().getBounds().centerY();
-        int left = node.getValue().getBounds().centerX();
-
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) toolTip.getLayoutParams();
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(layoutParams);
-        params.setMargins(0, top - nub.getHeight() / 2, 0, 0);
-        toolTip.setLayoutParams(params);
+        ((FrameLayout.LayoutParams) toolTip.getLayoutParams()).setMargins(0, bounds.centerY() - nub.getHeight() / 2, 0, 0);
 
         LinearLayout.LayoutParams nubLayout = new LinearLayout.LayoutParams(nub.getLayoutParams());
-        nubLayout.setMargins(left - nub.getWidth() / 2, 0, 0, 0);
+        nubLayout.setMargins(bounds.centerX() - nub.getWidth() / 2, 0, 0, 0);
         nub.setLayoutParams(nubLayout);
+    }
 
+    private void displayHighlight(Rect bounds) {
+        hightlight.setVisibility(VISIBLE);
 
+        ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).setMargins(bounds.left, bounds.top, 0, 0);
+        ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).width = bounds.width();
+        ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).height = bounds.height();
     }
 
     private static Optional<Tree<DisplayNode>> findClickedNode(Tree<DisplayNode> displayNodes, MotionEvent event) {

@@ -13,6 +13,14 @@
         android:layout_gravity="center_vertical"
         />
 
+    <View
+        android:id="@+id/highlight"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:visibility="invisible"
+        android:background="@drawable/highlight"
+        />
+
     <LinearLayout
         android:id="@+id/toolTip"
         android:orientation="vertical"
@@ -22,7 +30,7 @@
         android:visibility="invisible"
         >
 
-        <RelativeLayout
+        <View
             android:id="@+id/nub"
             android:layout_width="20dp"
             android:layout_height="20dp"
