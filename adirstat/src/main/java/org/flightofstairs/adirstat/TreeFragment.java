@@ -112,6 +112,8 @@ public class TreeFragment extends RoboFragment {
         deleteButton.setOnClickListener(new DeleteListener(this::startActivity, toaster, selected));
         goToButton.setOnClickListener(new GoToListener(this::startActivity, toaster, root, selected));
 
+        upButton.setEnabled(!root.equals(selected));
+
         upButton.setOnClickListener(v -> {
             if (root.equals(selected)) return;
 
@@ -121,6 +123,8 @@ public class TreeFragment extends RoboFragment {
 
             selectNode(root, root.descendWhile(searchPredicate).get(), clicked);
         });
+
+        downButton.setEnabled(!clicked.equals(selected));
 
         downButton.setOnClickListener(v -> {
             if (clicked.equals(selected)) return;

@@ -78,7 +78,7 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:id="@+id/upButton"
-                    android:src="@drawable/ic_action_collapse"
+                    android:src="@drawable/up"
                     android:contentDescription="@string/goToButtonText"
                     style="?android:attr/borderlessButtonStyle"
                     />
@@ -87,7 +87,7 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:id="@+id/downButton"
-                    android:src="@drawable/ic_action_expand"
+                    android:src="@drawable/down"
                     android:contentDescription="@string/goToButtonText"
                     style="?android:attr/borderlessButtonStyle"
                     />
