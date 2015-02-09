@@ -20,12 +20,24 @@ public class Tree<T extends Comparable<T>> implements Comparable<Tree<T>> {
         return value.compareTo(another.value);
     }
 
-    public Optional<Tree<T>> descendWhile(Predicate<T> predicate) {
+    @Nonnull
+    public Optional<Tree<T>> descendWhile(@Nonnull Predicate<T> predicate) {
         if (!predicate.apply(value)) return Optional.absent();
 
         for (Tree<T> child : children) {
             Optional<Tree<T>> childSearch = child.descendWhile(predicate);
             if (childSearch.isPresent()) return childSearch;
+        }
+
+        return Optional.of(this);
+    }
+
+    @Nonnull
+    public Optional<Tree<T>> stepDown(@Nonnull  Predicate<T> predicate) {
+        if (!predicate.apply(value)) return Optional.absent();
+
+        for (Tree<T> child : children) {
+            if (predicate.apply(child.value)) return Optional.of(child);
         }
 
         return Optional.of(this);

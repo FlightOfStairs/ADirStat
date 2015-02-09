@@ -31,6 +31,7 @@ import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
+import static com.google.common.base.Predicates.*;
 import static java.lang.Math.min;
 import static java.util.Locale.UK;
 
@@ -43,8 +44,11 @@ public class TreeFragment extends RoboFragment {
     @InjectView(R.id.treemap) private ImageView imageView;
 
     @InjectView(R.id.fileDetails) private TextView fileDetails;
+
     @InjectView(R.id.goToButton) private ImageView goToButton;
     @InjectView(R.id.deleteButton) private ImageView deleteButton;
+    @InjectView(R.id.upButton) private ImageView upButton;
+    @InjectView(R.id.downButton) private ImageView downButton;
 
     @InjectView(R.id.toolTip) private LinearLayout toolTip;
 
@@ -89,22 +93,43 @@ public class TreeFragment extends RoboFragment {
     }
 
     private void handleClick(final Tree<DisplayNode> root, MotionEvent event) {
-        Optional<Tree<DisplayNode>> possibleTree = findClickedNode(root, event);
+        Optional<Tree<DisplayNode>> possibleTree = root.descendWhile(findByPosition((int) event.getX(), (int) event.getY()));
         if (!possibleTree.isPresent()) return;
 
         Tree<DisplayNode> node = possibleTree.get();
 
-        displayHighlight(node.getValue().getBounds());
-        displayToolTip(node.getValue().getBounds());
+        selectNode(root, node, node);
+    }
 
-        fileDetails.setText(node.getValue().getFile().toString());
+    private void selectNode(Tree<DisplayNode> root, Tree<DisplayNode> selected, Tree<DisplayNode> clicked) {
+        displayHighlight(selected.getValue().getBounds());
+        displayToolTip(clicked.getValue().getBounds());
+
+        fileDetails.setText(selected.getValue().getFile().toString());
 
         Sink<Integer> toaster = x -> Toast.makeText(getActivity().getApplicationContext(), x, LENGTH_SHORT).show();
 
-        deleteButton.setOnClickListener(new DeleteListener(this::startActivity, toaster, node));
-        goToButton.setOnClickListener(new GoToListener(this::startActivity, toaster, root, node));
+        deleteButton.setOnClickListener(new DeleteListener(this::startActivity, toaster, selected));
+        goToButton.setOnClickListener(new GoToListener(this::startActivity, toaster, root, selected));
 
-        bus.post(node.getValue());
+        upButton.setOnClickListener(v -> {
+            if (root.equals(selected)) return;
+
+            int x = selected.getValue().getBounds().centerX();
+            int y = selected.getValue().getBounds().centerY();
+            Predicate<DisplayNode> searchPredicate = and(findByPosition(x, y), not(equalTo(selected.getValue())));
+
+            selectNode(root, root.descendWhile(searchPredicate).get(), clicked);
+        });
+
+        downButton.setOnClickListener(v -> {
+            if (clicked.equals(selected)) return;
+
+            Predicate<DisplayNode> searchPredicate = findByPosition(clicked.getValue().getBounds().centerX(), clicked.getValue().getBounds().centerY());
+            selectNode(root, selected.stepDown(searchPredicate).get(), clicked);
+        });
+
+        bus.post(selected.getValue());
     }
 
     private void displayToolTip(Rect bounds) {
@@ -125,8 +150,7 @@ public class TreeFragment extends RoboFragment {
         ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).height = bounds.height();
     }
 
-    private static Optional<Tree<DisplayNode>> findClickedNode(Tree<DisplayNode> displayNodes, MotionEvent event) {
-        Predicate<DisplayNode> searchPredicate = (node) -> node.getBounds().contains((int) event.getX(), (int) event.getY()) && min(node.getBounds().width(), node.getBounds().height()) >= MIN_CLICK_TARGET_WIDTH;
-        return displayNodes.descendWhile(searchPredicate);
+    private static Predicate<DisplayNode> findByPosition(int x, int y) {
+        return (node) -> node.getBounds().contains(x, y) && min(node.getBounds().width(), node.getBounds().height()) >= MIN_CLICK_TARGET_WIDTH;
     }
 }
