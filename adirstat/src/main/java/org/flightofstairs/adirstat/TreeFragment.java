@@ -116,25 +116,10 @@ public class TreeFragment extends RoboFragment {
         goToButton.setOnClickListener(new GoToListener(this::startActivity, toaster, root, selected));
 
         upButton.setEnabled(!root.equals(selected));
-
-        upButton.setOnClickListener(v -> {
-            if (root.equals(selected)) return;
-
-            int x = selected.getValue().getBounds().centerX();
-            int y = selected.getValue().getBounds().centerY();
-            Predicate<DisplayNode> searchPredicate = and(findByPosition(x, y), not(equalTo(selected.getValue())));
-
-            selectNode(root, root.descendWhile(searchPredicate).get(), clicked);
-        });
-
         downButton.setEnabled(!clicked.equals(selected));
 
-        downButton.setOnClickListener(v -> {
-            if (clicked.equals(selected)) return;
-
-            Predicate<DisplayNode> searchPredicate = findByPosition(clicked.getValue().getBounds().centerX(), clicked.getValue().getBounds().centerY());
-            selectNode(root, selected.stepDown(searchPredicate).get(), clicked);
-        });
+        upButton.setOnClickListener(navigateUpListener(root, selected, clicked));
+        downButton.setOnClickListener(navigateDownListener(root, selected, clicked));
 
         bus.post(selected.getValue());
     }
@@ -167,6 +152,26 @@ public class TreeFragment extends RoboFragment {
         ((FrameLayout.LayoutParams) highlight.getLayoutParams()).height = bounds.height();
     }
 
+    private View.OnClickListener navigateUpListener(Tree<DisplayNode> root, Tree<DisplayNode> selected, Tree<DisplayNode> clicked) {
+        return v -> {
+            if (root.equals(selected)) return;
+
+            int x = selected.getValue().getBounds().centerX();
+            int y = selected.getValue().getBounds().centerY();
+            Predicate<DisplayNode> searchPredicate = and(findByPosition(x, y), not(equalTo(selected.getValue())));
+
+            selectNode(root, root.descendWhile(searchPredicate).get(), clicked);
+        };
+    }
+
+    private View.OnClickListener navigateDownListener(Tree<DisplayNode> root, Tree<DisplayNode> selected, Tree<DisplayNode> clicked) {
+        return v -> {
+            if (clicked.equals(selected)) return;
+
+            Predicate<DisplayNode> searchPredicate = findByPosition(clicked.getValue().getBounds().centerX(), clicked.getValue().getBounds().centerY());
+            selectNode(root, selected.stepDown(searchPredicate).get(), clicked);
+        };
+    }
 
     private static Predicate<DisplayNode> findByPosition(int x, int y) {
         return (node) -> node.getBounds().contains(x, y) && min(node.getBounds().width(), node.getBounds().height()) >= MIN_CLICK_TARGET_WIDTH;
