@@ -28,6 +28,7 @@ import roboguice.inject.InjectView;
 import javax.annotation.Nonnull;
 
 import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -52,8 +53,10 @@ public class TreeFragment extends RoboFragment {
 
     @InjectView(R.id.toolTip) private LinearLayout toolTip;
 
-    @InjectView(R.id.nub) private View nub;
-    @InjectView(R.id.highlight) private View hightlight;
+    @InjectView(R.id.upperNub) private View upperNub;
+    @InjectView(R.id.lowerNub) private View lowerNub;
+
+    @InjectView(R.id.highlight) private View highlight;
 
     @Override
     @SneakyThrows
@@ -139,20 +142,31 @@ public class TreeFragment extends RoboFragment {
     private void displayToolTip(Rect bounds) {
         toolTip.setVisibility(VISIBLE);
 
-        ((FrameLayout.LayoutParams) toolTip.getLayoutParams()).setMargins(0, bounds.centerY() - nub.getHeight() / 2, 0, 0);
+        boolean usingUpperNub = bounds.centerY() + upperNub.getHeight() + lowerNub.getHeight() + toolTip.getHeight() < imageView.getHeight();
 
-        LinearLayout.LayoutParams nubLayout = new LinearLayout.LayoutParams(nub.getLayoutParams());
-        nubLayout.setMargins(bounds.centerX() - nub.getWidth() / 2, 0, 0, 0);
-        nub.setLayoutParams(nubLayout);
+        // Position tooltip + nubs vertically with appropriate offset.
+        int top = bounds.centerY() - upperNub.getHeight() / 2 - (usingUpperNub ? 0 : toolTip.getHeight() - upperNub.getHeight());
+        ((FrameLayout.LayoutParams) toolTip.getLayoutParams()).setMargins(0, top, 0, 0);
+
+        // Hide unused nub.
+        upperNub.setVisibility(usingUpperNub ? VISIBLE : INVISIBLE);
+        lowerNub.setVisibility(usingUpperNub ? INVISIBLE : VISIBLE);
+
+        // Position both nubs horizontally.
+        LinearLayout.LayoutParams nubLayout = new LinearLayout.LayoutParams(upperNub.getLayoutParams());
+        nubLayout.setMargins(bounds.centerX() - upperNub.getWidth() / 2, 0, 0, 0);
+        upperNub.setLayoutParams(nubLayout);
+        lowerNub.setLayoutParams(nubLayout);
     }
 
     private void displayHighlight(Rect bounds) {
-        hightlight.setVisibility(VISIBLE);
+        highlight.setVisibility(VISIBLE);
 
-        ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).setMargins(bounds.left, bounds.top, 0, 0);
-        ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).width = bounds.width();
-        ((FrameLayout.LayoutParams) hightlight.getLayoutParams()).height = bounds.height();
+        ((FrameLayout.LayoutParams) highlight.getLayoutParams()).setMargins(bounds.left, bounds.top, 0, 0);
+        ((FrameLayout.LayoutParams) highlight.getLayoutParams()).width = bounds.width();
+        ((FrameLayout.LayoutParams) highlight.getLayoutParams()).height = bounds.height();
     }
+
 
     private static Predicate<DisplayNode> findByPosition(int x, int y) {
         return (node) -> node.getBounds().contains(x, y) && min(node.getBounds().width(), node.getBounds().height()) >= MIN_CLICK_TARGET_WIDTH;

@@ -31,7 +31,7 @@
         >
 
         <View
-            android:id="@+id/nub"
+            android:id="@+id/upperNub"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:background="@drawable/nub"
@@ -108,6 +108,14 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <View
+            android:id="@+id/lowerNub"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:rotation="180"
+            android:background="@drawable/nub"
+            />
 
     </LinearLayout>
 
