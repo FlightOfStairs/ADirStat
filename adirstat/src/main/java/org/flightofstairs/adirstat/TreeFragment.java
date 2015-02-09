@@ -33,13 +33,10 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.google.common.base.Predicates.*;
-import static java.lang.Math.min;
 import static java.util.Locale.UK;
 
 @SuppressWarnings("BindingAnnotationWithoutInject")
 public class TreeFragment extends RoboFragment {
-
-    public static final int MIN_CLICK_TARGET_WIDTH = 10;
 
     @Inject private Bus bus;
     @InjectView(R.id.treemap) private ImageView imageView;
@@ -174,6 +171,6 @@ public class TreeFragment extends RoboFragment {
     }
 
     private static Predicate<DisplayNode> findByPosition(int x, int y) {
-        return (node) -> node.getBounds().contains(x, y) && min(node.getBounds().width(), node.getBounds().height()) >= MIN_CLICK_TARGET_WIDTH;
+        return (node) -> node.getBounds().contains(x, y);
     }
 }
