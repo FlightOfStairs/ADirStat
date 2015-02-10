@@ -8,5 +8,7 @@
     <string name="failedToOpenFileMessage">Failed to open file. Opening directory.</string>
     <string name="failedToOpenFileOrDirectoryMessage">Failed to open file or directory. Install a file manager.</string>
 
-    <string name="deleteClicked">DELETE!</string>
+    <string name="deleteConfirmed">Files deleted!</string>
+    <string name="deleteNotConfirmed">Delete not confirmed. Files not deleted.</string>
+    <string name="deleteCanceled">Delete canceled.</string>
 </resources>
