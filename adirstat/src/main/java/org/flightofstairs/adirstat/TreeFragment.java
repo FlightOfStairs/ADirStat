@@ -1,6 +1,8 @@
 package org.flightofstairs.adirstat;
 
+import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -22,7 +24,8 @@ import org.flightofstairs.adirstat.model.FilesystemSummary;
 import org.flightofstairs.adirstat.view.DeleteListener;
 import org.flightofstairs.adirstat.view.DisplayNode;
 import org.flightofstairs.adirstat.view.GoToListener;
-import org.flightofstairs.adirstat.view.TreeMap;
+import org.flightofstairs.adirstat.view.drawing.Cushions;
+import org.flightofstairs.adirstat.view.packing.SquarifiedPacking;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -80,21 +83,21 @@ public class TreeFragment extends RoboFragment {
 
         Toast.makeText(getActivity().getApplicationContext(), message, LENGTH_LONG).show();
 
-        if (node.isPresent()) {
-            TreeMap drawable = new TreeMap(bus, node.get());
-            imageView.setImageDrawable(drawable);
-        }
+        if (!node.isPresent()) return;
+
+        Tree<DisplayNode> packedNodes = SquarifiedPacking.pack(node.get(), new Rect(0, 0, imageView.getWidth(), imageView.getHeight()));
+
+        imageView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == ACTION_DOWN) handleClick(packedNodes, event);
+            return true;
+        });
+
+        Bitmap bitmap = Cushions.draw(packedNodes, imageView.getWidth(), imageView.getHeight());
+
+        imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
 
         imageView.setVisibility(VISIBLE);
         loadingSpinner.setVisibility(INVISIBLE);
-    }
-
-    @Subscribe
-    public void onPackedDisplayNodes(@Nonnull Tree<DisplayNode> displayNodes) {
-        imageView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == ACTION_DOWN) handleClick(displayNodes, event);
-            return true;
-        });
     }
 
     private void handleClick(final Tree<DisplayNode> root, MotionEvent event) {
