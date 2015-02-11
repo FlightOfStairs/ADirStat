@@ -89,7 +89,7 @@
                     android:layout_height="50dp"
                     android:id="@+id/upButton"
                     android:src="@drawable/up"
-                    android:contentDescription="@string/goToButtonText"
+                    android:contentDescription="@string/navigateUpButtonText"
                     style="?android:attr/borderlessButtonStyle"
                     />
 
@@ -98,7 +98,7 @@
                     android:layout_height="50dp"
                     android:id="@+id/downButton"
                     android:src="@drawable/down"
-                    android:contentDescription="@string/goToButtonText"
+                    android:contentDescription="@string/navigateDownButtonText"
                     style="?android:attr/borderlessButtonStyle"
                     />
 

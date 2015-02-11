@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">ADirStat</string>
-    <string name="action_settings">Settings</string>
     <string name="deleteButtonText">Delete</string>
     <string name="goToButtonText">Go To</string>
+    <string name="navigateUpButtonText">Up</string>
+    <string name="navigateDownButtonText">Down</string>
     <string name="failedToOpenFileMessage">Failed to open file. Opening directory.</string>
     <string name="failedToOpenFileOrDirectoryMessage">Failed to open file or directory. Install a file manager.</string>
 
