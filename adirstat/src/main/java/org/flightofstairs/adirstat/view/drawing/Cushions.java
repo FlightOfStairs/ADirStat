@@ -31,7 +31,7 @@ import static java.util.Collections.emptyList;
  */
 public final class Cushions {
 
-    public static final double F = 0.75;
+    public static final double F = 0.85;
 
     // Rendering constants... I wonder what these do?
     private static final double
