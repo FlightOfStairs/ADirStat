@@ -3,6 +3,7 @@ package org.flightofstairs.adirstat;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -75,6 +76,7 @@ public class TreeFragment extends RoboFragment {
         super.onDestroy();
     }
 
+    @SuppressWarnings("unchecked")
     @Subscribe
     public void onFsScanComplete(@Nonnull Optional<Tree<FilesystemSummary>> node) {
         String message = node.isPresent()
@@ -85,19 +87,27 @@ public class TreeFragment extends RoboFragment {
 
         if (!node.isPresent()) return;
 
-        Tree<DisplayNode> packedNodes = SquarifiedPacking.pack(node.get(), new Rect(0, 0, imageView.getWidth(), imageView.getHeight()));
+        AsyncTask<Tree<DisplayNode>, Void, Bitmap> draw = new SimpleAsyncTask<>(
+                i -> Cushions.draw(i, imageView.getWidth(), imageView.getHeight()),
+                o -> {
+                    imageView.setImageDrawable(new BitmapDrawable(getResources(), o));
 
-        imageView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == ACTION_DOWN) handleClick(packedNodes, event);
-            return true;
-        });
+                    imageView.setVisibility(VISIBLE);
+                    loadingSpinner.setVisibility(INVISIBLE);
+                });
 
-        Bitmap bitmap = Cushions.draw(packedNodes, imageView.getWidth(), imageView.getHeight());
+        AsyncTask<Tree<FilesystemSummary>, Void, Tree<DisplayNode>> pack = new SimpleAsyncTask<>(
+                i -> SquarifiedPacking.pack(i, new Rect(0, 0, imageView.getWidth(), imageView.getHeight())),
+                o -> {
+                    imageView.setOnTouchListener((v, event) -> {
+                        if (event.getAction() == ACTION_DOWN) handleClick(o, event);
+                        return true;
+                    });
 
-        imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                    draw.execute(o);
+                });
 
-        imageView.setVisibility(VISIBLE);
-        loadingSpinner.setVisibility(INVISIBLE);
+        pack.execute(node.get());
     }
 
     private void handleClick(final Tree<DisplayNode> root, MotionEvent event) {
