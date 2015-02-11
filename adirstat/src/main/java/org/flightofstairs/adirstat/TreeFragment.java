@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Optional;
@@ -40,6 +41,7 @@ public class TreeFragment extends RoboFragment {
 
     @Inject private Bus bus;
     @InjectView(R.id.treemap) private ImageView imageView;
+    @InjectView(R.id.loadingSpinner) private ProgressBar loadingSpinner;
 
     @InjectView(R.id.fileDetails) private TextView fileDetails;
 
@@ -82,6 +84,9 @@ public class TreeFragment extends RoboFragment {
             TreeMap drawable = new TreeMap(bus, node.get());
             imageView.setImageDrawable(drawable);
         }
+
+        imageView.setVisibility(VISIBLE);
+        loadingSpinner.setVisibility(INVISIBLE);
     }
 
     @Subscribe
