@@ -41,10 +41,7 @@ public final class Colouring {
             case "text": return LTGRAY;
             case "zip": return CYAN;
             case "pdf": return MAGENTA;
-
-            default:
-                System.out.println(type);
-                return fallback(type);
+            default: return fallback(type);
         }
     }
 
