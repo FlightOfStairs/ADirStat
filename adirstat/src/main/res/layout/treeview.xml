@@ -111,7 +111,7 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:id="@+id/goToButton"
-                    android:src="@drawable/ic_action_forward"
+                    android:src="@drawable/ic_open_in_new_white_24dp"
                     android:contentDescription="@string/goToButtonText"
                     style="?android:attr/borderlessButtonStyle"
                     />

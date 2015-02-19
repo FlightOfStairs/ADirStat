@@ -135,6 +135,8 @@ public class TreeFragment extends RoboFragment {
         Sink<Integer> toaster = x -> Toast.makeText(getActivity().getApplicationContext(), x, LENGTH_SHORT).show();
 
         deleteButton.setOnClickListener(new DeleteListener(getActivity(), toaster, selected));
+
+        goToButton.setImageResource(selected.getChildren().isEmpty() ? R.drawable.ic_open_in_new_white_24dp : R.drawable.ic_folder_open_white_24dp);
         goToButton.setOnClickListener(new GoToListener(this::startActivity, toaster, root, selected));
 
         upButton.setEnabled(!root.equals(selected));
