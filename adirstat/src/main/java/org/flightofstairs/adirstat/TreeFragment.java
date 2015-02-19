@@ -20,6 +20,8 @@ import com.google.common.base.Predicate;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import fr.nicolaspomepuy.discreetapprate.AppRate;
+import fr.nicolaspomepuy.discreetapprate.RetryPolicy;
 import lombok.SneakyThrows;
 import org.flightofstairs.adirstat.model.FilesystemSummary;
 import org.flightofstairs.adirstat.view.DeleteListener;
@@ -94,6 +96,11 @@ public class TreeFragment extends RoboFragment {
 
                     imageView.setVisibility(VISIBLE);
                     loadingSpinner.setVisibility(INVISIBLE);
+
+                    AppRate.with(getActivity())
+                            .initialLaunchCount(3)
+                            .retryPolicy(RetryPolicy.INCREMENTAL)
+                            .checkAndShow();
                 });
 
         AsyncTask<Tree<FilesystemSummary>, Void, Tree<DisplayNode>> pack = new SimpleAsyncTask<>(

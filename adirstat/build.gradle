@@ -59,6 +59,7 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'com.squareup:otto:1.3.5'
     compile 'com.google.code.findbugs:jsr305:2.0.2'
+    compile 'fr.nicolaspomepuy:discreetapprate:2.0.3@aar'
     provided 'org.projectlombok:lombok:1.14.8'
     compile 'org.roboguice:roboguice:3.0.1'
     provided 'org.roboguice:roboblender:3.0.1'
