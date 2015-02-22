@@ -5,6 +5,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.renderscript.RenderScript;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -89,8 +90,10 @@ public class TreeFragment extends RoboFragment {
 
         if (!node.isPresent()) return;
 
+        Cushions cushions = new Cushions(RenderScript.create(getActivity()));
+
         AsyncTask<Tree<DisplayNode>, Void, Bitmap> draw = new SimpleAsyncTask<>(
-                i -> Cushions.draw(i, imageView.getWidth(), imageView.getHeight()),
+                i -> cushions.draw(i, imageView.getWidth(), imageView.getHeight()),
                 o -> {
                     imageView.setImageDrawable(new BitmapDrawable(getResources(), o));
 
