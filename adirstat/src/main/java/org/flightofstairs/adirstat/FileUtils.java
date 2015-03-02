@@ -17,16 +17,20 @@ public final class FileUtils {
     public static Optional<String> getMimeType(@Nonnull File file) {
         if (file.isDirectory()) return Optional.of(DIRECTORY_MIMETYPE);
 
-        Optional<String> possibleMimeType = Optional.fromNullable(guessContentTypeFromName(file.getAbsolutePath()));
+        try {
+            Optional<String> possibleMimeType = Optional.fromNullable(guessContentTypeFromName(file.getAbsolutePath()));
 
-        if (! possibleMimeType.isPresent()) {
-            try (FileInputStream inputStream = new FileInputStream(file)) {
-                possibleMimeType = Optional.fromNullable(guessContentTypeFromStream(inputStream));
-            } catch (IOException e) {
-                return Optional.absent();
+            if (!possibleMimeType.isPresent()) {
+                try (FileInputStream inputStream = new FileInputStream(file)) {
+                    possibleMimeType = Optional.fromNullable(guessContentTypeFromStream(inputStream));
+                } catch (IOException e) {
+                    return Optional.absent();
+                }
             }
+            return possibleMimeType;
+        } catch (StringIndexOutOfBoundsException ignored) {
+            return Optional.absent();
         }
-        return possibleMimeType;
     }
 
     private FileUtils() { }
