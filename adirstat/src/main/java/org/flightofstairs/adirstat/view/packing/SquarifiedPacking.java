@@ -2,6 +2,7 @@ package org.flightofstairs.adirstat.view.packing;
 
 
 import android.graphics.Rect;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
@@ -16,7 +17,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import static com.google.common.base.Verify.verify;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * An implementation of the "Squarified Treemaps": http://www.win.tue.nl/~vanwijk/stm.pdf
@@ -127,10 +128,12 @@ public class SquarifiedPacking {
 
     private static final double EPSILON = 0.00001;
 
+    @VisibleForTesting
     @Nonnull
-    private static Rect newBounds(@Nonnull Rect bounds, double fraction, double priorFraction) {
-
+    static Rect newBounds(@Nonnull Rect bounds, double fraction, double priorFraction) {
         verify(fraction + priorFraction <= 1 + EPSILON, "fraction (%d) & prior fraction (%d) more than 1 + EPSILON ", fraction, priorFraction);
+
+        if (bounds.isEmpty()) return bounds;
 
         Rect newBounds;
 
@@ -138,15 +141,16 @@ public class SquarifiedPacking {
             double left = bounds.left + bounds.width() * priorFraction;
             double right =  left + (bounds.width() * fraction);
 
-            newBounds = new Rect((int) left, bounds.top, (int) right, bounds.bottom);
+            newBounds = new Rect((int) round(left), bounds.top, (int) round(right), bounds.bottom);
         } else {
             double top = bounds.top + bounds.height() * priorFraction;
             double bottom =  top + bounds.height() * fraction;
 
-            newBounds = new Rect(bounds.left, (int) top, bounds.right, (int) bottom);
+            newBounds = new Rect(bounds.left, (int) round(top), bounds.right, (int) round(bottom));
         }
 
-        verify(newBounds.left >= bounds.left && newBounds.top >= bounds.top && newBounds.right <= bounds.right && newBounds.bottom <= bounds.bottom);
+        verify(bounds.contains(newBounds), "newBounds not contained. horizontal: %s, frac: %s, priorFrac: %s, bounds: %s, newBounds: %s", bounds.width() >= bounds.height(), fraction, priorFraction, bounds, newBounds);
+        verify(newBounds.width() >= 0 && newBounds.height() >= 0, "width or height negative, horizontal: %s, frac: %s, priorFrac: %s, bounds: %s, newBounds: %s", bounds.width() >= bounds.height(), fraction, priorFraction, bounds, newBounds);
 
         return newBounds;
     }

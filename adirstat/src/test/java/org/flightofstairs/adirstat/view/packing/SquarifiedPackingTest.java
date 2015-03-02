@@ -34,4 +34,10 @@ public class SquarifiedPackingTest {
 
         assertEquals(expected, actual);
     }
+
+    @Test
+    public void newBoundsEdgeCase() { // made with real data!
+        Rect rect = SquarifiedPacking.newBounds(new Rect(787, 1045, 915, 1047), 0.006106064544560274, 0.9457072296133543);
+        assertEquals(new Rect(908, 1045, 909, 1047), rect);
+    }
 }
