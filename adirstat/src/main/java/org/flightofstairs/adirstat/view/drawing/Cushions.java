@@ -103,15 +103,37 @@ public final class Cushions {
     }
 
     private static double[] calculateIntensities(Surface s, Rect bounds) {
-        double[] intensities = new double[bounds.width() * bounds.height()];
+        if (bounds.isEmpty()) return new double[0];
 
-        for(int y = 0; y < bounds.height(); y++) {
-            double ny = -(2 * s.y2 * (y + bounds.top + 0.5) + s.y1);
-            for(int x = 0; x < bounds.width(); x++) {
-                double nx = -(2 * s.x2 * (x + bounds.left + 0.5) + s.x1);
-                double cosa = (nx * Lx + ny * Ly + Lz) / Math.sqrt(nx * nx + ny * ny + 1.0);
+        int width = bounds.width();
+        int height = bounds.height();
 
-                intensities[(x + y * bounds.width())] = (float) (Ia + Math.max(0, Is * cosa));
+        double[] nxSquared = new double[width];
+        double[] nxScaled = new double[width];
+
+        double[] nySquared = new double[height];
+        double[] nyScaled = new double[height];
+
+        for(int x = 0; x < width; x++) {
+            double nx = -(2 * s.x2 * (x + bounds.left + 0.5) + s.x1);
+            nxSquared[x] = nx * nx;
+            nxScaled[x] = nx * Lx;
+        }
+
+        for(int y = 0; y < height; y++) {
+            double ny = -(2 * s.y2 * (y + bounds.top  + 0.5) + s.y1);
+            nySquared[y] = ny * ny;
+            nyScaled[y] = ny * Ly;
+        }
+
+        double[] intensities = new double[width * height];
+
+        for(int y = 0; y < height; y++) {
+            int step = y * width;
+            for(int x = 0; x < width; x++) {
+                double cosa = (nxScaled[x] + nyScaled[y] + Lz) / Math.sqrt(nxSquared[x] + nySquared[y] + 1.0);
+
+                intensities[(x + step)] = (float) (Ia + Math.max(0, Is * cosa));
             }
         }
         return intensities;
