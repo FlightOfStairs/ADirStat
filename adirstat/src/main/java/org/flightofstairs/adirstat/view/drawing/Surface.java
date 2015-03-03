@@ -4,13 +4,13 @@ import android.graphics.Rect;
 
 // Parabolic constants for cushion 'height'
 class Surface {
-    final double x1;
-    final double x2;
+    final float x1;
+    final float x2;
 
-    final double y1;
-    final double y2;
+    final float y1;
+    final float y2;
 
-    private Surface(double x1, double x2, double y1, double y2) {
+    private Surface(float x1, float x2, float y1, float y2) {
         this.x1 = x1;
         this.x2 = x2;
         this.y1 = y1;
@@ -21,11 +21,11 @@ class Surface {
         return new Surface(0, 0, 0, 0);
     }
 
-    Surface addCushion(Rect bounds, double h) {
+    Surface addCushion(Rect bounds, float h) {
         return new Surface(
-                x1 + 4 * h * ((bounds.right + bounds.left) / (double) (bounds.right - bounds.left)),
+                x1 + 4 * h * ((bounds.right + bounds.left) / (float) (bounds.right - bounds.left)),
                 x2 - 4 * h / (bounds.right - bounds.left),
-                y1 + 4 * h * ((bounds.bottom + bounds.top) / (double) (bounds.bottom - bounds.top)),
+                y1 + 4 * h * ((bounds.bottom + bounds.top) / (float) (bounds.bottom - bounds.top)),
                 y2 - 4 * h / (bounds.bottom - bounds.top));
     }
 }

@@ -31,15 +31,15 @@ import static java.util.Collections.emptyList;
  */
 public final class Cushions {
 
-    public static final double F = 0.85;
+    public static final float F = 0.85f;
 
     // Rendering constants... I wonder what these do?
-    private static final double
-            Ia = 40,
-            Is = 215,
-            Lx = 0.09759,
-            Ly = 0.19518,
-            Lz = 0.9759;
+    private static final float
+            Ia = 40f,
+            Is = 215f,
+            Lx = 0.09759f,
+            Ly = 0.19518f,
+            Lz = 0.9759f;
 
     public static final int MIN_DIMENSION = 1;
     public static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
@@ -48,7 +48,7 @@ public final class Cushions {
     public static Bitmap draw(@Nonnull Tree<DisplayNode> node, int width, int height) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        List<Future<Pair<Rect, int[]>>> futures = THREAD_POOL.invokeAll(ImmutableList.copyOf(ctm(node, 0.5, Surface.create(), true)));
+        List<Future<Pair<Rect, int[]>>> futures = THREAD_POOL.invokeAll(ImmutableList.copyOf(ctm(node, 0.5f, Surface.create(), true)));
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
@@ -62,7 +62,7 @@ public final class Cushions {
         return bitmap;
     }
 
-    public static Iterable<Callable<Pair<Rect, int[]>>> ctm(Tree<DisplayNode> node, double h, Surface s, boolean isRoot) {
+    public static Iterable<Callable<Pair<Rect, int[]>>> ctm(Tree<DisplayNode> node, float h, Surface s, boolean isRoot) {
         Rect bounds = node.getValue().getBounds();
 
         if (min(bounds.width(), bounds.height()) < MIN_DIMENSION) return emptyList();
@@ -75,13 +75,13 @@ public final class Cushions {
 
     public static Callable<Pair<Rect, int[]>> renderCushion(Surface s, DisplayNode displayNode) {
         return () -> {
-            double[] intensities = calculateIntensities(s, displayNode.getBounds());
+            float[] intensities = calculateIntensities(s, displayNode.getBounds());
             int[] pixels = calculatePixels(Colouring.getColour(displayNode.getFile()), intensities);
             return Pair.create(displayNode.getBounds(), pixels);
         };
     }
 
-    private static int[] calculatePixels(int colour, double[] intensities) {
+    private static int[] calculatePixels(int colour, float[] intensities) {
         // Color.HSVToColor() is much slower.
 
         final int a = 0xFF000000;
@@ -102,31 +102,31 @@ public final class Cushions {
         return pixels;
     }
 
-    private static double[] calculateIntensities(Surface s, Rect bounds) {
-        if (bounds.isEmpty()) return new double[0];
+    private static float[] calculateIntensities(Surface s, Rect bounds) {
+        if (bounds.isEmpty()) return new float[0];
 
         int width = bounds.width();
         int height = bounds.height();
 
-        double[] nxSquared = new double[width];
-        double[] nxScaled = new double[width];
+        float[] nxSquared = new float[width];
+        float[] nxScaled = new float[width];
 
-        double[] nySquared = new double[height];
-        double[] nyScaled = new double[height];
+        float[] nySquared = new float[height];
+        float[] nyScaled = new float[height];
 
         for(int x = 0; x < width; x++) {
-            double nx = -(2 * s.x2 * (x + bounds.left + 0.5) + s.x1);
+            float nx = -(2 * s.x2 * (x + bounds.left + 0.5f) + s.x1);
             nxSquared[x] = nx * nx;
             nxScaled[x] = nx * Lx;
         }
 
         for(int y = 0; y < height; y++) {
-            double ny = -(2 * s.y2 * (y + bounds.top  + 0.5) + s.y1);
+            float ny = -(2 * s.y2 * (y + bounds.top  + 0.5f) + s.y1);
             nySquared[y] = ny * ny;
             nyScaled[y] = ny * Ly;
         }
 
-        double[] intensities = new double[width * height];
+        float[] intensities = new float[width * height];
 
         for(int y = 0; y < height; y++) {
             int step = y * width;
