@@ -6,7 +6,6 @@ import com.google.common.base.Verify;
 import lombok.SneakyThrows;
 
 import java.io.File;
-import java.util.Objects;
 
 import static android.graphics.Color.*;
 import static java.lang.Math.abs;
@@ -24,7 +23,7 @@ public final class Colouring {
         if (possibleMimeType.isPresent()) return colourMime(possibleMimeType.get());
 
         String extension = MimeTypeMap.getFileExtensionFromUrl(file.toURI().toURL().toString());
-        if (!Objects.equals(extension, "")) return fallback(extension);
+        if (!"".equals(extension)) return fallback(extension);
 
         return fallback(file.getName());
     }
