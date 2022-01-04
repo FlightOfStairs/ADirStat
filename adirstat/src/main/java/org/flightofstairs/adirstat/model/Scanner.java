@@ -1,11 +1,18 @@
 package org.flightofstairs.adirstat.model;
 
-import android.annotation.TargetApi;
+import static com.google.common.base.Verify.verifyNotNull;
+import static com.google.common.collect.ImmutableList.copyOf;
+import static com.google.common.collect.Lists.transform;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.util.Locale.UK;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.os.AsyncTask;
-import android.os.Build;
 import android.system.Os;
 import android.system.StructStat;
 import android.util.Log;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -13,7 +20,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
-import lombok.SneakyThrows;
+
 import org.flightofstairs.adirstat.Tree;
 
 import java.io.File;
@@ -25,19 +32,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.function.Function;
 
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-import static com.google.common.base.Verify.verifyNotNull;
-import static com.google.common.collect.ImmutableList.copyOf;
-import static com.google.common.collect.Lists.transform;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static java.util.Locale.UK;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import lombok.SneakyThrows;
 
 public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSummary>>> {
 
-    private static final boolean SMART_LENGTH_COMPATIBLE = Build.VERSION.SDK_INT >= LOLLIPOP;
     private static final int MIN_FILE_BYTES = 1;
 
     public static final Semaphore ADDITIONAL_THREADS = new Semaphore(10);
@@ -58,7 +58,7 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
         File root = verifyNotNull(params[0]);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<Tree<FilesystemSummary>> node = recursiveList(root.getCanonicalFile());
+        Optional<Tree<FilesystemSummary>> node = recursiveList(root.getCanonicalFile(), Scanner::smartLength);
 
         String logMessage = node.isPresent()
                 ? String.format(UK, "Found %d files (%dmb) in %ds.", node.get().getValue().getSubTreeCount(), node.get().getValue().getSubTreeBytes() / (int) Math.pow(1024, 2), stopwatch.elapsed(SECONDS))
@@ -76,12 +76,13 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
 
     @VisibleForTesting
     @SneakyThrows
-    static Optional<Tree<FilesystemSummary>> recursiveList(File path) {
+    // fileSizeMeasure required as Os.stat() returns a stub when testing.
+    static Optional<Tree<FilesystemSummary>> recursiveList(File path, Function<File, Long> fileSizeMeasure) {
         if (path.isDirectory()) {
             long subTreeBytes = 0;
             long subTreeCount = 0;
 
-            Iterable<Optional<Tree<FilesystemSummary>>> possibleChildren = listChildrenThreaded(path);
+            Iterable<Optional<Tree<FilesystemSummary>>> possibleChildren = listChildrenThreaded(path, fileSizeMeasure);
 
             SortedSet<Tree<FilesystemSummary>> children = ImmutableSortedSet.copyOf(Optional.presentInstances(possibleChildren));
             for (Tree<FilesystemSummary> child : children) {
@@ -91,15 +92,15 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
 
             return Optional.of(new Tree<>(new FilesystemSummary(path, subTreeBytes, subTreeCount), children));
         } else if (path.isFile()) {
-            long length = SMART_LENGTH_COMPATIBLE ? smartLength(path) : path.length();
+            long length = fileSizeMeasure.apply(path);
             return Optional.of(new Tree<>(new FilesystemSummary(path, max(length, MIN_FILE_BYTES), 1), ImmutableSortedSet.<Tree<FilesystemSummary>>of()));
         }
         return Optional.absent();
     }
 
     @SneakyThrows
-    private static Iterable<Optional<Tree<FilesystemSummary>>> listChildrenThreaded(File path) {
-        List<Callable<Optional<Tree<FilesystemSummary>>>> toList = transform(copyOf(path.listFiles()), file -> (Callable<Optional<Tree<FilesystemSummary>>>) () -> Scanner.recursiveList(file));
+    private static Iterable<Optional<Tree<FilesystemSummary>>> listChildrenThreaded(File path, Function<File, Long> fileSizeMeasure) {
+        List<Callable<Optional<Tree<FilesystemSummary>>>> toList = transform(copyOf(path.listFiles()), file -> (Callable<Optional<Tree<FilesystemSummary>>>) () -> Scanner.recursiveList(file, fileSizeMeasure));
 
         // Using semaphore to permit use of thread pool. If can't acquire, make progress with direct thread. Cannot deadlock.
         boolean threaded = ADDITIONAL_THREADS.tryAcquire();
@@ -115,7 +116,6 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
     }
 
     // Handle sparse files, such as .thumbdata3: http://android.stackexchange.com/questions/63993/thumbdata-files-maxing-out-internal-sd-memory
-    @TargetApi(LOLLIPOP)
     @SneakyThrows
     private static long smartLength(File file) {
         long length = file.length();

@@ -1,26 +1,26 @@
 package org.flightofstairs.adirstat.model;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Files;
-import lombok.SneakyThrows;
+
 import org.flightofstairs.adirstat.Tree;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.util.Map;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import lombok.SneakyThrows;
 
-@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class ScannerTest {
     public static final ImmutableSortedSet<Tree<FilesystemSummary>> EMPTY = ImmutableSortedSet.of();
@@ -29,7 +29,7 @@ public class ScannerTest {
 
     @Test
     public void testEmpty() {
-        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(testFolder.getRoot());
+        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(testFolder.getRoot(), File::length);
         assertTrue(possibleNode.isPresent());
         Tree<FilesystemSummary> node = possibleNode.get();
 
@@ -42,7 +42,7 @@ public class ScannerTest {
         File root = testFolder.getRoot();
         Files.write("hello", new File(root, "hello.txt"), UTF_8);
 
-        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root);
+        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root, File::length);
         assertTrue(possibleNode.isPresent());
 
         Tree<FilesystemSummary> file = new Tree<>(new FilesystemSummary(new File(root, "hello.txt"), 5, 1), EMPTY);
@@ -73,7 +73,7 @@ public class ScannerTest {
             Files.write(fileContent.getValue(), file, UTF_8);
         }
 
-        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root);
+        Optional<Tree<FilesystemSummary>> possibleNode = Scanner.recursiveList(root, File::length);
         assertTrue(possibleNode.isPresent());
 
         // IDEA went a bit mental when this was inline.

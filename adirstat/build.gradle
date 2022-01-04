@@ -1,37 +1,43 @@
 buildscript {
     repositories {
-        jcenter()
+        google()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:7.0.4'
         classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.1'
-        classpath 'me.tatarka:gradle-retrolambda:2.5.0'
         classpath 'org.robolectric:robolectric-gradle-plugin:0.14.1'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
-    jcenter()
+    google()
+    mavenCentral()
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 32
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "org.flightofstairs.ADirStat"
-        minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 5
-        versionName "1.5"
+        minSdkVersion 26
+        targetSdkVersion 30 // restricted to 30 by Robolectric 4.6
+        versionCode 6
+        versionName "1.6"
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 
     lintOptions {
@@ -53,16 +59,20 @@ android {
     }
 }
 
-apply plugin: 'android-unit-test'
+//apply plugin: 'android-unit-test'
 
 dependencies {
-    compile 'com.google.guava:guava:18.0'
-    compile 'com.squareup:otto:1.3.5'
-    compile 'com.google.code.findbugs:jsr305:2.0.2'
-    compile 'fr.nicolaspomepuy:discreetapprate:2.0.3@aar'
-    provided 'org.projectlombok:lombok:1.14.8'
-    compile 'org.roboguice:roboguice:3.0.1'
-    provided 'org.roboguice:roboblender:3.0.1'
-    testCompile 'org.robolectric:robolectric:2.4'
-    testCompile 'junit:junit:4.11'
+    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.squareup:otto:1.3.5'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'fr.nicolaspomepuy:discreetapprate:2.0.3@aar'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation 'org.roboguice:roboguice:3.0.1'
+    compileOnly 'org.roboguice:roboblender:3.0.1'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testImplementation 'org.robolectric:robolectric:4.6'
+    testImplementation 'junit:junit:4.13.1'
 }

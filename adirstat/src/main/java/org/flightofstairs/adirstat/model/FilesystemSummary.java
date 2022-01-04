@@ -1,14 +1,16 @@
 package org.flightofstairs.adirstat.model;
 
 import com.google.common.collect.ComparisonChain;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
+
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
-import java.io.File;
-
 @Value
-@AllArgsConstructor(suppressConstructorProperties = true) // needed because android :(
+@AllArgsConstructor
 public class FilesystemSummary implements Comparable<FilesystemSummary> {
     private @Nonnull File path;
     private long subTreeBytes;

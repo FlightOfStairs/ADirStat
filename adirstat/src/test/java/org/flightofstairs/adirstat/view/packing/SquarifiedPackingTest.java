@@ -1,19 +1,19 @@
 package org.flightofstairs.adirstat.view.packing;
 
+import static org.junit.Assert.assertEquals;
+
 import android.graphics.Rect;
+
 import com.google.common.collect.ImmutableSortedSet;
+
 import org.flightofstairs.adirstat.Tree;
 import org.flightofstairs.adirstat.view.DisplayNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
-
-@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class SquarifiedPackingTest {
 

@@ -1,15 +1,18 @@
 package org.flightofstairs.adirstat.view;
 
 import android.graphics.Rect;
+
 import com.google.common.collect.ComparisonChain;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
+
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
-import java.io.File;
-
 @Value
-@AllArgsConstructor(suppressConstructorProperties = true) // because android
+@AllArgsConstructor
 public class DisplayNode implements Comparable<DisplayNode> {
     @Nonnull private File file;
     @Nonnull private Rect bounds;

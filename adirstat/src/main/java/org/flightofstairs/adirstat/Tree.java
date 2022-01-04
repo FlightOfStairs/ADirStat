@@ -2,15 +2,17 @@ package org.flightofstairs.adirstat;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+
+import java.util.SortedSet;
+
+import javax.annotation.Nonnull;
+
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
-import java.util.SortedSet;
-
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 @Value
-@AllArgsConstructor(suppressConstructorProperties = true) // because android
+@AllArgsConstructor
 public class Tree<T extends Comparable<T>> implements Comparable<Tree<T>> {
     @Nonnull private T value;
     @Nonnull private SortedSet<Tree<T>> children;
