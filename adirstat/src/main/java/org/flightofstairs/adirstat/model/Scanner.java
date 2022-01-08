@@ -16,6 +16,7 @@ import android.util.Log;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
@@ -100,7 +101,8 @@ public class Scanner extends AsyncTask<File, Void, Optional<Tree<FilesystemSumma
 
     @SneakyThrows
     private static Iterable<Optional<Tree<FilesystemSummary>>> listChildrenThreaded(File path, Function<File, Long> fileSizeMeasure) {
-        List<Callable<Optional<Tree<FilesystemSummary>>>> toList = transform(copyOf(path.listFiles()), file -> (Callable<Optional<Tree<FilesystemSummary>>>) () -> Scanner.recursiveList(file, fileSizeMeasure));
+        List<File> children = path.listFiles() != null ? copyOf(path.listFiles()) : ImmutableList.of();
+        List<Callable<Optional<Tree<FilesystemSummary>>>> toList = transform(children, file -> (Callable<Optional<Tree<FilesystemSummary>>>) () -> Scanner.recursiveList(file, fileSizeMeasure));
 
         // Using semaphore to permit use of thread pool. If can't acquire, make progress with direct thread. Cannot deadlock.
         boolean threaded = ADDITIONAL_THREADS.tryAcquire();

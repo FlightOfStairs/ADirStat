@@ -66,6 +66,8 @@ dependencies {
     implementation 'com.squareup:otto:1.3.5'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'fr.nicolaspomepuy:discreetapprate:2.0.3@aar'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'androidx.annotation:annotation:1.3.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     implementation 'org.roboguice:roboguice:3.0.1'

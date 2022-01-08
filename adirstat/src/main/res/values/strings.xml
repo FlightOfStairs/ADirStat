@@ -11,4 +11,7 @@
     <string name="deleteConfirmed">Files deleted!</string>
     <string name="deleteNotConfirmed">Delete not confirmed. Files not deleted.</string>
     <string name="deleteCanceled">Delete canceled.</string>
+
+    <string name="permissionsDescription">ADirStat requires permission to manage all files. Please request storage permissions and allow ADirStat to access all files on the next screen.</string>
+    <string name="requestStoragePermissionsButton">Request Storage Permissions</string>
 </resources>
